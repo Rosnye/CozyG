@@ -1,0 +1,23 @@
+# Godot 4
+.godot/
+.import/
+*.translation
+
+# Exportaciones
+build/
+export/
+*.apk
+*.aab
+*.ipa
+
+# Secretos de firma (nunca subir)
+*.keystore
+*.jks
+*.p12
+
+# Sistema
+.DS_Store
+Thumbs.db
+
+# Archivos de trabajo locales
+brote.zip
