@@ -34,7 +34,7 @@ tests/    pruebas automáticas de la lógica
 
 ## Cómo correr
 
-- Abrir la carpeta en Godot 4.x (versión estándar, no .NET) y pulsar F5.
+- Abrir la carpeta en Godot 4.7 (versión estándar, no .NET; el proyecto nació en 4.3 y se migró a 4.7) y pulsar F5.
 - Renderizador: GL Compatibility (necesario para que funcione bien en Web y móviles modestos).
 
 ## Estado actual
