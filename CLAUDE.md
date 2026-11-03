@@ -2,7 +2,7 @@
 
 Juego cozy de pago único (sin anuncios) para móvil y PC. Terrario infinito: el jugador coloca piezas hexagonales (bosque, agua, prado...) y el mundo crece y cobra vida. Sin derrota, sin tiempo, sin presión.
 
-Plan completo por etapas: ver `plan-por-etapas.md` en el proyecto "Cozy game" de claude.ai.
+Plan completo por etapas: ver `plan-por-etapas.md` en la raíz del repositorio.
 
 ## Reglas del proyecto
 
@@ -18,8 +18,8 @@ Plan completo por etapas: ver `plan-por-etapas.md` en el proyecto "Cozy game" de
 
 ```
 scenes/   escenas (.tscn)
-scripts/  código GDScript (.gd)
-data/     recursos de datos: piezas, criaturas, biomas (.tres)
+scripts/  código GDScript (.gd); la lógica pura está en scripts/hex/ (Hex, Tablero)
+data/     recursos de datos: tema_brote.tres, piezas/ (.tres), criaturas, biomas
 art/      imágenes, sonidos, música (provisionales por ahora)
 tests/    pruebas automáticas de la lógica
 ```
@@ -37,7 +37,25 @@ tests/    pruebas automáticas de la lógica
 - Abrir la carpeta en Godot 4.7 (versión estándar, no .NET; el proyecto nació en 4.3 y se migró a 4.7) y pulsar F5.
 - Renderizador: GL Compatibility (necesario para que funcione bien en Web y móviles modestos).
 
+## Pruebas automáticas
+
+Scripts propios, sin dependencias. Cada `tests/prueba_*.gd` hereda de `tests/prueba_base.gd` y define métodos `prueba_*`. Correr todas (desde la raíz del proyecto, con la ruta absoluta de Godot):
+
+```
+godot --headless --path . --script res://tests/ejecutar_pruebas.gd
+```
+
+Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --import`. Sale con código 1 si alguna falla.
+
+## Juego (Etapa 1)
+
+- Escena principal: `scenes/juego.tscn` (`scripts/juego.gd` une todo).
+- `Tablero` guarda las celdas y las reglas básicas (colocar solo junto a otra pieza); `TableroVista` solo dibuja; `CamaraControl` hace arrastre, zoom (rueda y pellizco) y avisa de los toques.
+- Las piezas son `PiezaDatos` (`data/piezas/*.tres`): añadir un `.tres` ahí basta para que entre en el mazo. El arte provisional es el `color`; cuando exista `arte`, se dibuja en su lugar.
+- Teclas: R gira, Enter/Espacio confirma.
+- Los colores del tablero (contorno, huecos) son `@export` de `TableroVista`; los de interfaz van en el tema.
+
 ## Estado actual
 
 - [x] Etapa 0: cimientos (proyecto, estructura, escena de prueba)
-- [ ] Etapa 1: prototipo gris (hexágonos, colocar, girar, cámara)
+- [~] Etapa 1: prototipo gris implementado (hexágonos, mazo, colocar, girar, cámara); falta el criterio "10 minutos se sienten bien", que se juzga jugando
