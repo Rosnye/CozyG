@@ -1,0 +1,53 @@
+[gd_resource type="Theme" load_steps=6 format=3]
+
+[sub_resource type="StyleBoxFlat" id="fondo"]
+bg_color = Color(0.956863, 0.917647, 0.835294, 1)
+
+[sub_resource type="StyleBoxFlat" id="boton_normal"]
+bg_color = Color(0.48, 0.6, 0.36, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="boton_hover"]
+bg_color = Color(0.56, 0.68, 0.43, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+
+[sub_resource type="StyleBoxFlat" id="boton_pulsado"]
+bg_color = Color(0.4, 0.5, 0.29, 1)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+content_margin_left = 24.0
+content_margin_top = 12.0
+content_margin_right = 24.0
+content_margin_bottom = 12.0
+
+[resource]
+default_font_size = 28
+Panel/styles/panel = SubResource("fondo")
+Label/colors/font_color = Color(0.42, 0.36, 0.28, 1)
+Button/colors/font_color = Color(0.98, 0.96, 0.9, 1)
+Button/colors/font_hover_color = Color(1, 1, 1, 1)
+Button/colors/font_pressed_color = Color(0.98, 0.96, 0.9, 1)
+Button/font_sizes/font_size = 32
+Button/styles/normal = SubResource("boton_normal")
+Button/styles/hover = SubResource("boton_hover")
+Button/styles/pressed = SubResource("boton_pulsado")
+Button/styles/focus = SubResource("boton_hover")
+TituloLabel/base_type = &"Label"
+TituloLabel/colors/font_color = Color(0.32, 0.4, 0.22, 1)
+TituloLabel/font_sizes/font_size = 64
