@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="RecursoDatos" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/recurso_datos.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"mineral"
+nombre = "Mineral"
+color = Color(0.8, 0.84, 0.92, 1)
+inicial = 0

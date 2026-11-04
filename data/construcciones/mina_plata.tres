@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ConstruccionDatos" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/construccion_datos.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"mina_plata"
+nombre = "Mina de plata"
+color = Color(0.7, 0.75, 0.85, 1)
+produce = &"mineral"
+por_minuto = 6.0
+afinidad = {&"mineral": 1.0, &"piedra": 0.3}
+costo = {&"madera": 15, &"piedra": 10}
