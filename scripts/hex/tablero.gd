@@ -86,6 +86,40 @@ func restaurar(coord: Vector2i, pieza: PiezaDatos, giro: int) -> void:
 	_celdas[coord] = {"pieza": pieza, "giro": posmod(giro, 6)}
 
 
+## Cuántos bordes de un terreno necesita una pieza para ser hábitat de ese terreno.
+const BORDES_HABITAT: int = 2
+
+
+## Bordes de cada terreno sumados en todo el mundo: { terreno: cantidad }.
+func conteo_bordes() -> Dictionary:
+	var conteo: Dictionary = {}
+	for coord: Vector2i in _celdas:
+		var pieza: PiezaDatos = _celdas[coord]["pieza"]
+		for direccion in 6:
+			var terreno: StringName = pieza.borde(direccion)
+			conteo[terreno] = int(conteo.get(terreno, 0)) + 1
+	return conteo
+
+
+func es_habitat(coord: Vector2i, terreno: StringName) -> bool:
+	if not _celdas.has(coord):
+		return false
+	var pieza: PiezaDatos = _celdas[coord]["pieza"]
+	var bordes: int = 0
+	for direccion in 6:
+		if pieza.borde(direccion) == terreno:
+			bordes += 1
+	return bordes >= BORDES_HABITAT
+
+
+func celdas_habitat(terreno: StringName) -> Array[Vector2i]:
+	var resultado: Array[Vector2i] = []
+	for coord: Vector2i in _celdas:
+		if es_habitat(coord, terreno):
+			resultado.append(coord)
+	return resultado
+
+
 ## Huecos libres donde se puede colocar (sin repetidos).
 func frontera() -> Array[Vector2i]:
 	var vistos: Dictionary = {}

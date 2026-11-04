@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CriaturaDatos" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/criatura_datos.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"luciernaga"
+nombre = "Luciérnaga"
+color = Color(1.0, 0.92, 0.45, 1)
+habitat = &"bosque"
+requisitos = {&"bosque": 18}
+maximo = 3
+solo_de_noche = true
+tamano = 7.0

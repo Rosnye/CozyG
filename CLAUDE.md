@@ -22,6 +22,7 @@ scripts/  código GDScript (.gd); la lógica pura está en scripts/hex/ (Hex, Ta
 data/     recursos de datos: tema_brote.tres, piezas/ (.tres), criaturas, biomas
 art/      imágenes, sonidos, música (provisionales por ahora)
 tests/    pruebas automáticas de la lógica
+herramientas/  scripts auxiliares (generador de sonidos provisionales)
 ```
 
 ## Convenciones
@@ -56,6 +57,10 @@ Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --im
 - Dibujo provisional: un sector de color por borde (`DibujoPieza`). Cuando una pieza tenga `arte`, se dibuja la textura en su lugar.
 - Guardado: `Guardado` (JSON con versión) en `user://guardado.json`, tras cada pieza y al cerrar o pausar la app. Para empezar de cero, borrar ese archivo (en Windows: `%APPDATA%\Godot\app_userdata\Brote\guardado.json`). Una pieza con id desconocido en un guardado se omite sin perder el resto.
 - Sonidos provisionales en `art/sonidos/` (generados; se pueden sustituir).
+- Criaturas (Etapa 3): `CriaturaDatos` (`data/criaturas/*.tres`) define hábitat y `requisitos` (bordes mínimos por terreno en todo el mundo). `Ecosistema` (lógica pura) decide cuántas hay, dónde llegan y cómo se pasean; `CriaturasVista` solo las dibuja. Añadir un `.tres` basta para una criatura nueva.
+- Día/noche y clima: `Ciclo` (fase 0..1, día de 300 s) y `Clima` (despejado/lluvia con transición suave) son lógica pura. `Atmosfera` aplica el tinte (`data/ciclo_dia.tres`), la lluvia (`LluviaVista`) y el volumen de las capas de audio.
+- Audio por capas: `Ambiente.volumenes` decide el nivel de base, melodía, agua, aves, grillos y lluvia según luz, clima y lo construido. Los loops están en `art/sonidos/ambiente/` y los genera `python herramientas/generar_sonidos.py` (provisionales; basta reemplazar los `.wav` y mantener `edit/loop_mode=2` en su `.import`).
+- Pruebas que usan la escena completa deben fijar `ruta_guardado` en `juego.gd` antes de añadirla al árbol: headless comparte `user://` con el juego real y pisaría la partida guardada.
 - Teclas: R gira, Enter/Espacio confirma.
 - Los colores del tablero (huecos, contornos del fantasma) son `@export` de `TableroVista`; los de interfaz van en el tema.
 
@@ -63,4 +68,5 @@ Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --im
 
 - [x] Etapa 0: cimientos (proyecto, estructura, escena de prueba)
 - [x] Etapa 1: prototipo gris (hexágonos, mazo, colocar, girar, cámara)
-- [~] Etapa 2: encaje, recompensa y guardado implementados; falta juzgar jugando si colocar bien se siente premiado
+- [x] Etapa 2: reglas de encaje, recompensa y guardado
+- [~] Etapa 3: 5 criaturas, ciclo día/noche, lluvia y audio por capas implementados; falta juzgar jugando si dejar el juego abierto resulta relajante
