@@ -17,6 +17,9 @@
 [ext_resource type="AudioStream" path="res://art/sonidos/ambiente/aves.wav" id="15"]
 [ext_resource type="AudioStream" path="res://art/sonidos/ambiente/grillos.wav" id="16"]
 [ext_resource type="AudioStream" path="res://art/sonidos/ambiente/lluvia.wav" id="17"]
+[ext_resource type="Script" path="res://scripts/recursos_hud.gd" id="18"]
+[ext_resource type="Script" path="res://scripts/panel_construccion.gd" id="19"]
+[ext_resource type="PackedScene" path="res://scenes/ajustes.tscn" id="20"]
 
 [sub_resource type="Gradient" id="gradiente_punto"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
@@ -152,6 +155,38 @@ mouse_filter = 2
 horizontal_alignment = 1
 text = ""
 
+[node name="BotonPausa" type="Button" parent="Interfaz"]
+offset_left = 16.0
+offset_top = 16.0
+offset_right = 80.0
+offset_bottom = 72.0
+theme_type_variation = &"BotonPequeno"
+text = "II"
+
+[node name="Recursos" type="PanelContainer" parent="Interfaz"]
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = 16.0
+grow_horizontal = 0
+theme_type_variation = &"PanelFlotante"
+script = ExtResource("18")
+
+[node name="PanelConstruccion" type="PanelContainer" parent="Interfaz"]
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = -240.0
+offset_right = 16.0
+offset_bottom = -176.0
+grow_vertical = 0
+theme_type_variation = &"PanelFlotante"
+script = ExtResource("19")
+
 [node name="Barra" type="PanelContainer" parent="Interfaz"]
 anchors_preset = 12
 anchor_top = 1.0
@@ -208,3 +243,52 @@ custom_minimum_size = Vector2(180, 72)
 layout_mode = 2
 size_flags_vertical = 4
 text = "Confirmar"
+
+[node name="Pausa" type="CanvasLayer" parent="."]
+process_mode = 3
+layer = 3
+
+[node name="Velo" type="ColorRect" parent="Pausa"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 0.45)
+
+[node name="Centro" type="CenterContainer" parent="Pausa"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="MenuPausa" type="PanelContainer" parent="Pausa/Centro"]
+unique_name_in_owner = true
+theme_type_variation = &"PanelFlotante"
+
+[node name="Caja" type="VBoxContainer" parent="Pausa/Centro/MenuPausa"]
+theme_override_constants/separation = 14
+
+[node name="Titulo" type="Label" parent="Pausa/Centro/MenuPausa/Caja"]
+text = "Pausa"
+horizontal_alignment = 1
+
+[node name="PausaContinuar" type="Button" parent="Pausa/Centro/MenuPausa/Caja"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 72)
+text = "Continuar"
+
+[node name="PausaAjustes" type="Button" parent="Pausa/Centro/MenuPausa/Caja"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 72)
+text = "Ajustes"
+
+[node name="PausaMenu" type="Button" parent="Pausa/Centro/MenuPausa/Caja"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(320, 72)
+text = "Volver al menú"
+
+[node name="AjustesPausa" parent="Pausa/Centro" instance=ExtResource("20")]
+unique_name_in_owner = true
+visible = false

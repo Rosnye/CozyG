@@ -24,10 +24,14 @@ var _capas: Dictionary = {}
 
 
 func _ready() -> void:
+	Preferencias.iniciar()
 	for capa: StringName in Ambiente.CAPAS:
 		var reproductor := get_node_or_null("Capas/" + String(capa).capitalize()) as AudioStreamPlayer
 		if reproductor != null:
 			reproductor.volume_db = SILENCIO_DB
+			reproductor.bus = Preferencias.BUS_MUSICA
+			# La música sigue sonando con el juego en pausa.
+			reproductor.process_mode = Node.PROCESS_MODE_ALWAYS
 			_capas[capa] = reproductor
 
 
