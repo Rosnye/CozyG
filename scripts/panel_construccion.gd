@@ -78,6 +78,14 @@ func ocultar() -> void:
 	visible = false
 
 
+## El botón de una construcción (para guiar al jugador), o null si no está.
+func boton_de(id: StringName) -> Button:
+	for entrada in _botones:
+		if (entrada["construccion"] as ConstruccionDatos).id == id:
+			return entrada["boton"]
+	return null
+
+
 ## Activa o desactiva los botones según lo que se pueda pagar ahora.
 func refrescar(economia: Economia, tablero: Tablero) -> void:
 	for entrada in _botones:

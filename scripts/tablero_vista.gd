@@ -2,6 +2,8 @@ class_name TableroVista
 extends Node2D
 ## Dibuja el tablero y sus animaciones. Solo lee datos: no decide reglas.
 
+enum Guia { NINGUNA, HUECOS, PIEZA }
+
 const DURACION_ASENTAR: float = 0.35
 const DURACION_ONDA: float = 0.6
 
@@ -18,6 +20,9 @@ var tablero: Tablero
 ## Vector2i -> ConstruccionDatos (lo que hay construido sobre cada pieza).
 var construcciones: Dictionary = {}
 
+var _guia: Guia = Guia.NINGUNA
+var _guia_coord: Vector2i = Vector2i.ZERO
+var _reloj: float = 0.0
 var _hay_seleccion: bool = false
 var _seleccion: Vector2i = Vector2i.ZERO
 var _hay_pendiente: bool = false
@@ -50,6 +55,24 @@ func ocultar_pendiente() -> void:
 	queue_redraw()
 
 
+## Guía del tutorial: hace pulsar los huecos libres donde se puede colocar.
+func guiar_huecos() -> void:
+	_guia = Guia.HUECOS
+	set_process(true)
+
+
+## Guía del tutorial: hace pulsar el contorno de una pieza.
+func guiar_pieza(coord: Vector2i) -> void:
+	_guia = Guia.PIEZA
+	_guia_coord = coord
+	set_process(true)
+
+
+func quitar_guia() -> void:
+	_guia = Guia.NINGUNA
+	queue_redraw()
+
+
 ## Resalta la pieza elegida para construir.
 func seleccionar(coord: Vector2i) -> void:
 	_hay_seleccion = true
@@ -72,6 +95,7 @@ func animar_colocacion(coord: Vector2i, perfecta: bool) -> void:
 
 
 func _process(delta: float) -> void:
+	_reloj += delta
 	for coord: Vector2i in _animaciones.keys():
 		var animacion: Dictionary = _animaciones[coord]
 		animacion["tiempo"] += delta
@@ -79,16 +103,22 @@ func _process(delta: float) -> void:
 		if animacion["tiempo"] >= duracion:
 			_animaciones.erase(coord)
 	queue_redraw()
-	if _animaciones.is_empty():
+	if _animaciones.is_empty() and _guia == Guia.NINGUNA:
 		set_process(false)
 
 
 func _draw() -> void:
 	if tablero == null:
 		return
+	var pulso: float = 0.55 + 0.45 * sin(_reloj * 4.0)
 	for coord in tablero.frontera():
 		var contorno := _contorno(coord, 0.94)
-		draw_polyline(contorno, color_hueco, 2.0, true)
+		if _guia == Guia.HUECOS:
+			var llamada: Color = color_encaje
+			llamada.a = pulso
+			draw_polyline(contorno, llamada, 3.0 + 3.0 * pulso, true)
+		else:
+			draw_polyline(contorno, color_hueco, 2.0, true)
 	for coord in tablero.coordenadas():
 		var escala: float = 1.0
 		if _animaciones.has(coord):
@@ -99,6 +129,10 @@ func _draw() -> void:
 		)
 	for coord: Vector2i in construcciones:
 		_dibujar_construccion(coord, construcciones[coord])
+	if _guia == Guia.PIEZA:
+		var llamada: Color = color_encaje
+		llamada.a = pulso
+		draw_polyline(_contorno(_guia_coord, 0.99), llamada, 4.0 + 4.0 * pulso, true)
 	if _hay_seleccion:
 		draw_polyline(_contorno(_seleccion, 0.97), color_seleccion, 4.0, true)
 	for coord: Vector2i in _animaciones:

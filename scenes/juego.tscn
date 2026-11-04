@@ -20,6 +20,7 @@
 [ext_resource type="Script" path="res://scripts/recursos_hud.gd" id="18"]
 [ext_resource type="Script" path="res://scripts/panel_construccion.gd" id="19"]
 [ext_resource type="PackedScene" path="res://scenes/ajustes.tscn" id="20"]
+[ext_resource type="Script" path="res://scripts/panel_tutorial.gd" id="21"]
 
 [sub_resource type="Gradient" id="gradiente_punto"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
@@ -176,6 +177,16 @@ offset_bottom = 16.0
 grow_horizontal = 0
 theme_type_variation = &"PanelFlotante"
 script = ExtResource("18")
+
+[node name="PanelTutorial" type="PanelContainer" parent="Interfaz"]
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_top = 92.0
+offset_bottom = 92.0
+grow_horizontal = 2
+theme_type_variation = &"PanelFlotante"
+script = ExtResource("21")
 
 [node name="PanelConstruccion" type="PanelContainer" parent="Interfaz"]
 anchors_preset = 2
