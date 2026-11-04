@@ -20,9 +20,9 @@ Plan completo por etapas: ver `plan-por-etapas.md` en la raíz del repositorio.
 scenes/   escenas (.tscn)
 scripts/  código GDScript (.gd); la lógica pura está en scripts/hex/ (Hex, Tablero)
 data/     recursos de datos: tema_brote.tres, piezas/ (.tres), criaturas, biomas
-art/      imágenes, sonidos, música (provisionales por ahora)
+art/      imágenes (low-poly generadas), sonidos, música (provisionales por ahora)
 tests/    pruebas automáticas de la lógica
-herramientas/  scripts auxiliares (sonidos provisionales, prueba de estilos de arte)
+herramientas/  scripts auxiliares (sonidos, arte low-poly, prueba de estilos)
 docs/     guías (prueba con jugadores)
 ```
 
@@ -55,7 +55,7 @@ Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --im
 - `Tablero` guarda las celdas, la regla de colocación (junto a otra pieza) y el encaje (`evaluar`, `encaja_perfecto`); `TableroVista` solo dibuja y anima; `CamaraControl` hace arrastre, zoom (rueda y pellizco) y avisa de los toques.
 - Las piezas son `PiezaDatos` (`data/piezas/*.tres`): añadir un `.tres` ahí basta para que entre en el mazo. Cada pieza tiene 6 `bordes` (terreno por dirección, en el orden de `Hex.DIRECCIONES`); girar la pieza gira sus bordes. Los colores de los terrenos están en `data/terrenos.tres`.
 - Regla de encaje: se puede colocar siempre junto a otra pieza (no hay derrota). Si todos los bordes compartidos coinciden es un "encaje perfecto": onda, partículas y sonido. El contorno del fantasma es verde si encaja y naranja si no.
-- Dibujo provisional: un sector de color por borde (`DibujoPieza`). Cuando una pieza tenga `arte`, se dibuja la textura en su lugar.
+- Dibujo: `DibujoPieza` pinta la textura `arte` de la pieza (girada); si falta, cae a un sector de color por borde.
 - Guardado: `Guardado` (JSON con versión) en `user://guardado.json`, tras cada pieza y al cerrar o pausar la app. Para empezar de cero, borrar ese archivo (en Windows: `%APPDATA%\Godot\app_userdata\Brote\guardado.json`). Una pieza con id desconocido en un guardado se omite sin perder el resto.
 - Sonidos provisionales en `art/sonidos/` (generados; se pueden sustituir).
 - Criaturas (Etapa 3): `CriaturaDatos` (`data/criaturas/*.tres`) define hábitat y `requisitos` (bordes mínimos por terreno en todo el mundo). `Ecosistema` (lógica pura) decide cuántas hay, dónde llegan y cómo se pasean; `CriaturasVista` solo las dibuja. Añadir un `.tres` basta para una criatura nueva.
@@ -71,7 +71,10 @@ Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --im
 
 ## Decisiones de diseño
 
-- **Estilo visual elegido (Etapa 4): isométrico 2.5D.** Bloques tipo diorama con grosor (lados de tierra bajo prado y bosque, agua en bajo relieve), vista aplastada (~0,56 en vertical), árboles y arbustos redondeados, sombras suaves. Referencia: `art/pruebas_estilo/isometrico_*.svg` (se regeneran con `herramientas/generar_prueba_estilos.py`). La Etapa 5 lo lleva al juego: la cuadrícula y el dibujo deben admitir la proyección isométrica sin tocar la lógica de `Hex` y `Tablero`.
+- **Estilo visual por ahora: low-poly generado por código.** Se probó isométrico 2.5D, pintado 2D y low-poly (`art/pruebas_estilo/`); el isométrico gustó, pero de momento se usa low-poly porque se puede generar sin artista. Es provisional: el arte definitivo se resolverá más adelante y bastará con cambiar el campo `arte` de cada `.tres`.
+- **Cómo se genera el arte:** `python herramientas/generar_arte_lowpoly.py` lee los datos y escribe un SVG por pieza, construcción y criatura en `art/piezas`, `art/construcciones` y `art/criaturas`, y los enlaza en el campo `arte` de cada `.tres` (solo si está vacío). Es determinista. Una pieza nueva solo necesita su `.tres` con `bordes`. Después hay que correr `godot --headless --path . --import`; las imágenes importan con mipmaps (los `.svg.import` llevan `mipmaps/generate=true`).
+- **Giro de las piezas con arte:** la imagen de una pieza tiene el borde 0 mirando al este; `DibujoPieza` la gira de 60° en 60° (`60° × giro`). Por eso los detalles de las piezas están pensados para verse bien girados (vista desde arriba).
+- Si cambia el estilo a isométrico más adelante, la lógica de `Hex` y `Tablero` no cambia, pero hay que ajustar el dibujo y la detección de la pieza tocada.
 
 ## Estado actual
 

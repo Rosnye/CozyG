@@ -64,10 +64,6 @@ func _dibujar_criatura(individuo: Dictionary, visual: Dictionary) -> void:
 	var saltito: float = sin(_reloj * 3.0 + individuo["id"]) * 1.5
 	var pos: Vector2 = visual["pos"] + Vector2(0, saltito)
 	var radio: float = criatura.tamano * escala
-	if criatura.arte != null:
-		var lado: float = radio * 2.0
-		draw_texture_rect(criatura.arte, Rect2(pos - Vector2(lado, lado) / 2.0, Vector2(lado, lado)), false, Color(1, 1, 1, opacidad))
-		return
 	var color: Color = criatura.color
 	color.a = opacidad
 	if criatura.solo_de_noche:
@@ -76,6 +72,10 @@ func _dibujar_criatura(individuo: Dictionary, visual: Dictionary) -> void:
 			var halo: Color = color
 			halo.a = opacidad * 0.12
 			draw_circle(pos, radio * (2.0 + capa * 1.4), halo)
+	if criatura.arte != null:
+		var lado: float = radio * 3.2
+		draw_texture_rect(criatura.arte, Rect2(pos - Vector2(lado, lado * 0.8), Vector2(lado, lado)), false, Color(1, 1, 1, opacidad))
+		return
 	draw_circle(pos + Vector2(0, radio * 0.9), radio * 0.8, Color(0, 0, 0, 0.15 * opacidad))
 	draw_circle(pos, radio, color)
 	draw_circle(pos + Vector2(radio * 0.45, -radio * 0.35), radio * 0.55, color.lightened(0.1))

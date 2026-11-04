@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="PiezaDatos" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="PiezaDatos" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/pieza_datos.gd" id="1"]
+
+[ext_resource type="Texture2D" path="res://art/piezas/claro.svg" id="2"]
 
 [resource]
 script = ExtResource("1")
@@ -9,3 +11,4 @@ nombre = "Claro del bosque"
 color = Color(0.55, 0.69, 0.4, 1)
 peso = 2
 bordes = Array[StringName]([&"bosque", &"bosque", &"bosque", &"prado", &"prado", &"prado"])
+arte = ExtResource("2")

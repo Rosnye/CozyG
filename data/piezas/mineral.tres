@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="PiezaDatos" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="PiezaDatos" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/pieza_datos.gd" id="1"]
+
+[ext_resource type="Texture2D" path="res://art/piezas/mineral.svg" id="2"]
 
 [resource]
 script = ExtResource("1")
@@ -9,3 +11,4 @@ nombre = "Veta de plata"
 color = Color(0.8, 0.84, 0.9, 1)
 peso = 1
 bordes = Array[StringName]([&"mineral", &"mineral", &"mineral", &"mineral", &"mineral", &"mineral"])
+arte = ExtResource("2")

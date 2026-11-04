@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="CriaturaDatos" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="CriaturaDatos" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/criatura_datos.gd" id="1"]
+
+[ext_resource type="Texture2D" path="res://art/criaturas/garza.svg" id="2"]
 
 [resource]
 script = ExtResource("1")
@@ -12,3 +14,4 @@ requisitos = {&"agua": 18, &"prado": 18}
 maximo = 2
 solo_de_noche = false
 tamano = 16.0
+arte = ExtResource("2")
