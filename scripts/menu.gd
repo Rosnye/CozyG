@@ -12,6 +12,7 @@ const RUTA_GUARDADO: String = "user://guardado.json"
 
 
 func _ready() -> void:
+	Pantalla.vigilar(get_window())
 	Preferencias.iniciar()
 	_continuar.visible = FileAccess.file_exists(RUTA_GUARDADO)
 	# En el navegador no hay nada que cerrar.

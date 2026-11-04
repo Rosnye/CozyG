@@ -30,11 +30,13 @@ func _ready() -> void:
 	_quitar = Button.new()
 	_quitar.theme_type_variation = &"BotonPequeno"
 	_quitar.text = "Quitar (devuelve la mitad)"
+	_quitar.custom_minimum_size = Vector2(0, 72)
 	_quitar.pressed.connect(func() -> void: quitar_pedido.emit())
 	caja.add_child(_quitar)
 	var cerrar := Button.new()
 	cerrar.theme_type_variation = &"BotonPequeno"
 	cerrar.text = "Cerrar"
+	cerrar.custom_minimum_size = Vector2(0, 72)
 	cerrar.pressed.connect(func() -> void: cerrado.emit())
 	caja.add_child(cerrar)
 	visible = false
@@ -62,16 +64,29 @@ func mostrar(coord: Vector2i, pieza: PiezaDatos, actual: ConstruccionDatos, cata
 	else:
 		_titulo.text = "%s: %s%s" % [pieza.nombre, _describir_bordes(pieza), bonus]
 		_rejilla.visible = true
+		_rejilla.columns = _columnas()
 		_quitar.visible = false
 		for construccion in catalogo:
 			var boton := Button.new()
 			boton.theme_type_variation = &"BotonPequeno"
 			boton.text = _texto_boton(construccion, pieza)
+			boton.custom_minimum_size = Vector2(0, 72)
 			boton.pressed.connect(func() -> void: construir_pedido.emit(construccion))
 			_rejilla.add_child(boton)
 			_botones.append({"boton": boton, "construccion": construccion})
 	visible = true
 	refrescar(economia, tablero)
+
+
+## Una columna en pantallas estrechas (móvil en vertical), tres en las anchas y bajitas
+## (móvil en horizontal, para no tapar el mapa) y dos en el resto.
+func _columnas() -> int:
+	var tamano: Vector2 = get_viewport_rect().size
+	if tamano.x < 760.0:
+		return 1
+	if tamano.y < 620.0:
+		return 3
+	return 2
 
 
 func ocultar() -> void:

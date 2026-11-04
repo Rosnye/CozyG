@@ -22,7 +22,7 @@ text = "Música y ambiente"
 
 [node name="Musica" type="HSlider" parent="Caja"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(360, 36)
+custom_minimum_size = Vector2(360, 56)
 layout_mode = 2
 max_value = 1.0
 step = 0.05
@@ -35,7 +35,7 @@ text = "Efectos de sonido"
 
 [node name="Efectos" type="HSlider" parent="Caja"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(360, 36)
+custom_minimum_size = Vector2(360, 56)
 layout_mode = 2
 max_value = 1.0
 step = 0.05
@@ -44,11 +44,13 @@ value = 0.8
 [node name="Tutorial" type="CheckButton" parent="Caja"]
 unique_name_in_owner = true
 layout_mode = 2
+custom_minimum_size = Vector2(360, 72)
 theme_type_variation = &"BotonPequeno"
 text = "Mostrar el tutorial en partidas nuevas"
+autowrap_mode = 3
 
 [node name="Volver" type="Button" parent="Caja"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(0, 64)
+custom_minimum_size = Vector2(0, 72)
 layout_mode = 2
 text = "Volver"

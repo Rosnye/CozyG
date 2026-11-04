@@ -21,6 +21,7 @@
 [ext_resource type="Script" path="res://scripts/panel_construccion.gd" id="19"]
 [ext_resource type="PackedScene" path="res://scenes/ajustes.tscn" id="20"]
 [ext_resource type="Script" path="res://scripts/panel_tutorial.gd" id="21"]
+[ext_resource type="Script" path="res://scripts/barra_inferior.gd" id="22"]
 
 [sub_resource type="Gradient" id="gradiente_punto"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
@@ -150,19 +151,21 @@ script = ExtResource("10")
 layer = 2
 
 [node name="Aviso" type="Label" parent="Interfaz"]
-anchors_preset = 10
 anchor_right = 1.0
-offset_top = 28.0
+offset_left = 104.0
+offset_top = 24.0
+offset_right = -200.0
 grow_horizontal = 2
 mouse_filter = 2
 horizontal_alignment = 1
+autowrap_mode = 3
 text = ""
 
 [node name="BotonPausa" type="Button" parent="Interfaz"]
 offset_left = 16.0
 offset_top = 16.0
-offset_right = 80.0
-offset_bottom = 72.0
+offset_right = 92.0
+offset_bottom = 92.0
 theme_type_variation = &"BotonPequeno"
 text = "II"
 
@@ -182,38 +185,47 @@ script = ExtResource("18")
 anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
-offset_top = 92.0
-offset_bottom = 92.0
+offset_top = 112.0
+offset_bottom = 112.0
 grow_horizontal = 2
 theme_type_variation = &"PanelFlotante"
 script = ExtResource("21")
 
-[node name="PanelConstruccion" type="PanelContainer" parent="Interfaz"]
-anchors_preset = 2
-anchor_top = 1.0
-anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -240.0
-offset_right = 16.0
-offset_bottom = -176.0
-grow_vertical = 0
-theme_type_variation = &"PanelFlotante"
-script = ExtResource("19")
-
-[node name="Barra" type="PanelContainer" parent="Interfaz"]
+[node name="Pie" type="VBoxContainer" parent="Interfaz"]
 anchors_preset = 12
 anchor_top = 1.0
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_top = -120.0
 grow_horizontal = 2
 grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 10
 
-[node name="Fila" type="HBoxContainer" parent="Interfaz/Barra"]
+[node name="Margen" type="MarginContainer" parent="Interfaz/Pie"]
 layout_mode = 2
-theme_override_constants/separation = 20
+mouse_filter = 2
+theme_override_constants/margin_left = 16
 
-[node name="Muestra" type="Control" parent="Interfaz/Barra/Fila"]
+[node name="PanelConstruccion" type="PanelContainer" parent="Interfaz/Pie/Margen"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_type_variation = &"PanelFlotante"
+script = ExtResource("19")
+
+[node name="Barra" type="PanelContainer" parent="Interfaz/Pie"]
+layout_mode = 2
+
+[node name="Fila" type="BoxContainer" parent="Interfaz/Pie/Barra"]
+layout_mode = 2
+theme_override_constants/separation = 16
+script = ExtResource("22")
+
+[node name="Datos" type="HBoxContainer" parent="Interfaz/Pie/Barra/Fila"]
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="Muestra" type="Control" parent="Interfaz/Pie/Barra/Fila/Datos"]
 unique_name_in_owner = true
 texture_filter = 4
 custom_minimum_size = Vector2(80, 80)
@@ -221,40 +233,51 @@ layout_mode = 2
 size_flags_vertical = 4
 script = ExtResource("4")
 
-[node name="Info" type="VBoxContainer" parent="Interfaz/Barra/Fila"]
+[node name="Info" type="VBoxContainer" parent="Interfaz/Pie/Barra/Fila/Datos"]
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
 
-[node name="Nombre" type="Label" parent="Interfaz/Barra/Fila/Info"]
+[node name="Nombre" type="Label" parent="Interfaz/Pie/Barra/Fila/Datos/Info"]
 unique_name_in_owner = true
 layout_mode = 2
 text = "Pieza"
 
-[node name="Contador" type="Label" parent="Interfaz/Barra/Fila/Info"]
+[node name="Contador" type="Label" parent="Interfaz/Pie/Barra/Fila/Datos/Info"]
 unique_name_in_owner = true
 layout_mode = 2
+theme_type_variation = &"EtiquetaPequena"
 text = "Piezas: 0"
+autowrap_mode = 3
 
-[node name="Encaje" type="Label" parent="Interfaz/Barra/Fila/Info"]
+[node name="Encaje" type="Label" parent="Interfaz/Pie/Barra/Fila/Datos/Info"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(340, 0)
 layout_mode = 2
+theme_type_variation = &"EtiquetaPequena"
+autowrap_mode = 3
 
-[node name="Espacio" type="Control" parent="Interfaz/Barra/Fila"]
+[node name="Espacio" type="Control" parent="Interfaz/Pie/Barra/Fila"]
 layout_mode = 2
 size_flags_horizontal = 3
 
-[node name="Girar" type="Button" parent="Interfaz/Barra/Fila"]
+[node name="Botones" type="HBoxContainer" parent="Interfaz/Pie/Barra/Fila"]
+layout_mode = 2
+size_flags_horizontal = 8
+theme_override_constants/separation = 12
+
+[node name="Girar" type="Button" parent="Interfaz/Pie/Barra/Fila/Botones"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(160, 72)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
 text = "Girar"
 
-[node name="Confirmar" type="Button" parent="Interfaz/Barra/Fila"]
+[node name="Confirmar" type="Button" parent="Interfaz/Pie/Barra/Fila/Botones"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(180, 72)
 layout_mode = 2
+size_flags_horizontal = 3
 size_flags_vertical = 4
 text = "Confirmar"
 
