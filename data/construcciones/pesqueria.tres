@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="ConstruccionDatos" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="ConstruccionDatos" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/construccion_datos.gd" id="1"]
+
+[ext_resource type="Texture2D" path="res://art/construcciones/pesqueria.svg" id="2"]
 
 [resource]
 script = ExtResource("1")
@@ -11,3 +13,4 @@ produce = &"pescado"
 por_minuto = 12.0
 afinidad = {&"agua": 1.0}
 costo = {&"madera": 10}
+arte = ExtResource("2")

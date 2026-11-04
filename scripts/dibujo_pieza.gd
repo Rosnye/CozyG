@@ -10,11 +10,11 @@ static func dibujar(
 ) -> void:
 	var radio: float = tamano * escala
 	if pieza.arte != null:
-		var lado: float = radio * Hex.RAIZ3
-		item.draw_texture_rect(
-			pieza.arte, Rect2(centro - Vector2(lado, lado) / 2.0, Vector2(lado, lado)),
-			false, Color(1, 1, 1, opacidad)
-		)
+		# La imagen es un hexágono con el borde 0 mirando al este: se gira de 60° en 60°.
+		var tamano_imagen := Vector2(radio * Hex.RAIZ3, radio * 2.0)
+		item.draw_set_transform(centro, deg_to_rad(60.0 * giro))
+		item.draw_texture_rect(pieza.arte, Rect2(-tamano_imagen / 2.0, tamano_imagen), false, Color(1, 1, 1, opacidad))
+		item.draw_set_transform(Vector2.ZERO)
 		return
 	var esquinas: PackedVector2Array = Hex.esquinas(radio * 0.96)
 	for direccion in 6:

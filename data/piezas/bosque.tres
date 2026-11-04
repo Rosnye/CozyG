@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="PiezaDatos" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="PiezaDatos" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/pieza_datos.gd" id="1"]
+
+[ext_resource type="Texture2D" path="res://art/piezas/bosque.svg" id="2"]
 
 [resource]
 script = ExtResource("1")
@@ -9,3 +11,4 @@ nombre = "Bosque"
 color = Color(0.36, 0.55, 0.34, 1)
 peso = 3
 bordes = Array[StringName]([&"bosque", &"bosque", &"bosque", &"bosque", &"bosque", &"bosque"])
+arte = ExtResource("2")

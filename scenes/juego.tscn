@@ -54,6 +54,7 @@ mouse_filter = 2
 [node name="ModulacionMundo" type="CanvasModulate" parent="."]
 
 [node name="Tablero" type="Node2D" parent="."]
+texture_filter = 4
 script = ExtResource("2")
 terrenos = ExtResource("5")
 
@@ -78,6 +79,7 @@ color_ramp = SubResource("desvanecer")
 
 [node name="Criaturas" type="Node2D" parent="."]
 z_index = 5
+texture_filter = 4
 script = ExtResource("8")
 
 [node name="Camara" type="Camera2D" parent="."]
@@ -202,6 +204,7 @@ theme_override_constants/separation = 20
 
 [node name="Muestra" type="Control" parent="Interfaz/Barra/Fila"]
 unique_name_in_owner = true
+texture_filter = 4
 custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 size_flags_vertical = 4

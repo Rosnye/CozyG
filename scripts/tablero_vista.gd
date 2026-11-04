@@ -118,7 +118,7 @@ func _dibujar_construccion(coord: Vector2i, construccion: ConstruccionDatos) -> 
 	var centro: Vector2 = Hex.axial_a_pixel(coord, tamano_hex)
 	var s: float = tamano_hex * 0.36
 	if construccion.arte != null:
-		draw_texture_rect(construccion.arte, Rect2(centro - Vector2(s, s) * 1.3, Vector2(s, s) * 2.6), false)
+		draw_texture_rect(construccion.arte, Rect2(centro - Vector2(s * 1.5, s * 1.9), Vector2(s, s) * 3.0), false)
 		return
 	var paredes := Rect2(centro + Vector2(-s, -s * 0.2), Vector2(2.0 * s, 1.2 * s))
 	var techo := PackedVector2Array([
