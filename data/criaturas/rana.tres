@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CriaturaDatos" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/criatura_datos.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"rana"
+nombre = "Rana"
+color = Color(0.35, 0.7, 0.4, 1)
+habitat = &"agua"
+requisitos = {&"agua": 12}
+maximo = 3
+solo_de_noche = false
+tamano = 10.0

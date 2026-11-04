@@ -4,8 +4,16 @@ extends Node
 ## Se puede colocar aunque no encaje; encajar bien se recompensa. Guarda tras cada pieza.
 
 const CARPETA_PIEZAS: String = "res://data/piezas"
-const RUTA_GUARDADO: String = "user://guardado.json"
+const CARPETA_CRIATURAS: String = "res://data/criaturas"
 const PIEZA_INICIAL: StringName = &"prado"
+## Segundos de un día completo (lento a propósito).
+const DURACION_DIA: float = 300.0
+const FASE_INICIAL: float = 0.1
+## Cada cuántos segundos (mín, máx) se pasea una criatura.
+const PASEO: Vector2 = Vector2(2.5, 6.0)
+
+## Dónde se guarda la partida (se cambia antes de añadir la escena en pruebas, para no pisar la real).
+var ruta_guardado: String = "user://guardado.json"
 
 var _tablero := Tablero.new()
 var _mazo: Mazo
@@ -13,8 +21,19 @@ var _pieza_actual: PiezaDatos
 var _giro: int = 0
 var _hay_pendiente: bool = false
 var _pendiente: Vector2i = Vector2i.ZERO
+var _criaturas: Array[CriaturaDatos] = []
+var _ecosistema := Ecosistema.new()
+var _ciclo := Ciclo.new(DURACION_DIA, FASE_INICIAL)
+var _clima := Clima.new()
+var _conteo: Dictionary = {}
+var _espera_paseo: float = 4.0
+var _aviso_tween: Tween
+var _azar := RandomNumberGenerator.new()
 
 @onready var _vista: TableroVista = $Tablero
+@onready var _criaturas_vista: CriaturasVista = $Criaturas
+@onready var _atmosfera: Atmosfera = $Atmosfera
+@onready var _aviso: Label = $Interfaz/Aviso
 @onready var _camara: CamaraControl = $Camara
 @onready var _barra: PanelContainer = $Interfaz/Barra
 @onready var _muestra: PiezaPreview = %Muestra
@@ -31,12 +50,30 @@ func _ready() -> void:
 	var piezas: Array[PiezaDatos] = _cargar_piezas()
 	_mazo = Mazo.new(piezas)
 	_muestra.terrenos = _vista.terrenos
+	_azar.randomize()
+	_criaturas = _cargar_criaturas()
 	_iniciar_partida(piezas)
 	_vista.tablero = _tablero
+	_criaturas_vista.ecosistema = _ecosistema
+	_criaturas_vista.tamano_hex = _vista.tamano_hex
+	_conteo = _tablero.conteo_bordes()
+	_ecosistema.actualizar(_tablero, _criaturas)
+	_aviso.modulate.a = 0.0
 	_camara.toque.connect(_al_tocar_mundo)
 	_girar.pressed.connect(_al_girar)
 	_confirmar.pressed.connect(_al_confirmar)
 	_actualizar_interfaz()
+
+
+func _process(delta: float) -> void:
+	_ciclo.avanzar(delta)
+	_clima.avanzar(delta)
+	_criaturas_vista.luz = _ciclo.luz()
+	_atmosfera.actualizar(delta, _ciclo, _clima, _conteo, _tablero.cantidad())
+	_espera_paseo -= delta
+	if _espera_paseo <= 0.0:
+		_espera_paseo = _azar.randf_range(PASEO.x, PASEO.y)
+		_ecosistema.mover_uno(_tablero)
 
 
 func _notification(motivo: int) -> void:
@@ -67,17 +104,37 @@ func _cargar_piezas() -> Array[PiezaDatos]:
 	return resultado
 
 
+func _cargar_criaturas() -> Array[CriaturaDatos]:
+	var resultado: Array[CriaturaDatos] = []
+	for archivo in DirAccess.get_files_at(CARPETA_CRIATURAS):
+		var nombre: String = archivo.trim_suffix(".remap")
+		if nombre.ends_with(".tres"):
+			var criatura := load(CARPETA_CRIATURAS + "/" + nombre) as CriaturaDatos
+			if criatura != null:
+				resultado.append(criatura)
+	resultado.sort_custom(func(a: CriaturaDatos, b: CriaturaDatos) -> bool: return a.id < b.id)
+	return resultado
+
+
 ## Carga la partida guardada o empieza una nueva con la pieza inicial en el centro.
 func _iniciar_partida(piezas: Array[PiezaDatos]) -> void:
 	var por_id: Dictionary = {}
 	for pieza in piezas:
 		por_id[pieza.id] = pieza
-	var cargada := Guardado.desde_diccionario(Guardado.leer(RUTA_GUARDADO), por_id)
+	var cargada := Guardado.desde_diccionario(Guardado.leer(ruta_guardado), por_id)
 	if not cargada.is_empty():
 		_tablero = cargada["tablero"]
 		_pieza_actual = por_id.get(cargada["pieza_actual"])
 		if _pieza_actual == null:
 			_robar()
+		var datos: Dictionary = cargada["datos"]
+		if datos.has("fase"):
+			_ciclo.fijar_fase(float(datos["fase"]))
+		if datos.get("criaturas") is Array:
+			var por_id_criaturas: Dictionary = {}
+			for criatura in _criaturas:
+				por_id_criaturas[criatura.id] = criatura
+			_ecosistema.desde_array(datos["criaturas"], por_id_criaturas)
 		return
 	_tablero.colocar(Vector2i.ZERO, por_id.get(PIEZA_INICIAL, _mazo.robar()))
 	_robar()
@@ -85,7 +142,19 @@ func _iniciar_partida(piezas: Array[PiezaDatos]) -> void:
 
 func _guardar() -> void:
 	if _pieza_actual != null:
-		Guardado.guardar(RUTA_GUARDADO, Guardado.a_diccionario(_tablero, _pieza_actual.id))
+		var extra: Dictionary = {"fase": _ciclo.fase(), "criaturas": _ecosistema.a_array()}
+		Guardado.guardar(ruta_guardado, Guardado.a_diccionario(_tablero, _pieza_actual.id, extra))
+
+
+## Muestra un aviso breve arriba que se desvanece solo.
+func _avisar(texto: String) -> void:
+	_aviso.text = texto
+	if _aviso_tween != null:
+		_aviso_tween.kill()
+	_aviso.modulate.a = 1.0
+	_aviso_tween = create_tween()
+	_aviso_tween.tween_interval(2.5)
+	_aviso_tween.tween_property(_aviso, "modulate:a", 0.0, 1.2)
 
 
 func _robar() -> void:
@@ -122,13 +191,21 @@ func _al_confirmar() -> void:
 		_sonido_encaje.play()
 	else:
 		_sonido_colocar.play()
+	_conteo = _tablero.conteo_bordes()
+	var llegadas := _ecosistema.actualizar(_tablero, _criaturas)
+	if not llegadas.is_empty():
+		var nombres: PackedStringArray = []
+		for llegada in llegadas:
+			if not nombres.has(llegada["criatura"].nombre):
+				nombres.append(llegada["criatura"].nombre)
+		_avisar("Ha llegado: " + " y ".join(nombres))
 	_guardar()
 	_actualizar_interfaz()
 
 
 func _actualizar_interfaz() -> void:
 	_nombre.text = _pieza_actual.nombre
-	_contador.text = "Piezas: %d" % _tablero.cantidad()
+	_contador.text = "Piezas: %d  ·  Criaturas: %d" % [_tablero.cantidad(), _ecosistema.cantidad()]
 	_muestra.mostrar(_pieza_actual, _giro)
 	_confirmar.disabled = not _hay_pendiente
 	if _hay_pendiente:

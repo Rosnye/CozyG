@@ -1,4 +1,4 @@
-[gd_scene load_steps=11 format=3]
+[gd_scene load_steps=24 format=3]
 
 [ext_resource type="Script" path="res://scripts/juego.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/tablero_vista.gd" id="2"]
@@ -7,6 +7,16 @@
 [ext_resource type="Resource" path="res://data/terrenos.tres" id="5"]
 [ext_resource type="AudioStream" path="res://art/sonidos/encaje.wav" id="6"]
 [ext_resource type="AudioStream" path="res://art/sonidos/colocar.wav" id="7"]
+[ext_resource type="Script" path="res://scripts/criaturas_vista.gd" id="8"]
+[ext_resource type="Script" path="res://scripts/atmosfera.gd" id="9"]
+[ext_resource type="Script" path="res://scripts/lluvia_vista.gd" id="10"]
+[ext_resource type="Gradient" path="res://data/ciclo_dia.tres" id="11"]
+[ext_resource type="AudioStream" path="res://art/sonidos/ambiente/base.wav" id="12"]
+[ext_resource type="AudioStream" path="res://art/sonidos/ambiente/melodia.wav" id="13"]
+[ext_resource type="AudioStream" path="res://art/sonidos/ambiente/agua.wav" id="14"]
+[ext_resource type="AudioStream" path="res://art/sonidos/ambiente/aves.wav" id="15"]
+[ext_resource type="AudioStream" path="res://art/sonidos/ambiente/grillos.wav" id="16"]
+[ext_resource type="AudioStream" path="res://art/sonidos/ambiente/lluvia.wav" id="17"]
 
 [sub_resource type="Gradient" id="gradiente_punto"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
@@ -36,6 +46,10 @@ grow_horizontal = 2
 grow_vertical = 2
 mouse_filter = 2
 
+[node name="ModulacionFondo" type="CanvasModulate" parent="Fondo"]
+
+[node name="ModulacionMundo" type="CanvasModulate" parent="."]
+
 [node name="Tablero" type="Node2D" parent="."]
 script = ExtResource("2")
 terrenos = ExtResource("5")
@@ -59,6 +73,10 @@ scale_amount_min = 0.3
 scale_amount_max = 0.6
 color_ramp = SubResource("desvanecer")
 
+[node name="Criaturas" type="Node2D" parent="."]
+z_index = 5
+script = ExtResource("8")
+
 [node name="Camara" type="Camera2D" parent="."]
 script = ExtResource("3")
 
@@ -70,7 +88,69 @@ volume_db = -8.0
 stream = ExtResource("7")
 volume_db = -12.0
 
+[node name="Atmosfera" type="Node" parent="." node_paths=PackedStringArray("modulacion_mundo", "modulacion_fondo", "lluvia")]
+script = ExtResource("9")
+gradiente_dia = ExtResource("11")
+modulacion_mundo = NodePath("../ModulacionMundo")
+modulacion_fondo = NodePath("../Fondo/ModulacionFondo")
+lluvia = NodePath("../LluviaCapa/Lluvia")
+
+[node name="Capas" type="Node" parent="Atmosfera"]
+
+[node name="Base" type="AudioStreamPlayer" parent="Atmosfera/Capas"]
+stream = ExtResource("12")
+volume_db = -80.0
+autoplay = true
+
+[node name="Melodia" type="AudioStreamPlayer" parent="Atmosfera/Capas"]
+stream = ExtResource("13")
+volume_db = -80.0
+autoplay = true
+
+[node name="Agua" type="AudioStreamPlayer" parent="Atmosfera/Capas"]
+stream = ExtResource("14")
+volume_db = -80.0
+autoplay = true
+
+[node name="Aves" type="AudioStreamPlayer" parent="Atmosfera/Capas"]
+stream = ExtResource("15")
+volume_db = -80.0
+autoplay = true
+
+[node name="Grillos" type="AudioStreamPlayer" parent="Atmosfera/Capas"]
+stream = ExtResource("16")
+volume_db = -80.0
+autoplay = true
+
+[node name="Lluvia" type="AudioStreamPlayer" parent="Atmosfera/Capas"]
+stream = ExtResource("17")
+volume_db = -80.0
+autoplay = true
+
+[node name="LluviaCapa" type="CanvasLayer" parent="."]
+layer = 1
+
+[node name="Lluvia" type="Control" parent="LluviaCapa"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("10")
+
 [node name="Interfaz" type="CanvasLayer" parent="."]
+layer = 2
+
+[node name="Aviso" type="Label" parent="Interfaz"]
+anchors_preset = 10
+anchor_right = 1.0
+offset_top = 28.0
+grow_horizontal = 2
+mouse_filter = 2
+horizontal_alignment = 1
+text = ""
 
 [node name="Barra" type="PanelContainer" parent="Interfaz"]
 anchors_preset = 12

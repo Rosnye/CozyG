@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="CriaturaDatos" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/criatura_datos.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"ciervo"
+nombre = "Ciervo"
+color = Color(0.72, 0.5, 0.3, 1)
+habitat = &"bosque"
+requisitos = {&"bosque": 24}
+maximo = 2
+solo_de_noche = false
+tamano = 18.0

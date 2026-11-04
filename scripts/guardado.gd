@@ -5,7 +5,8 @@ extends RefCounted
 const VERSION: int = 1
 
 
-static func a_diccionario(tablero: Tablero, pieza_actual: StringName) -> Dictionary:
+## `extra` se añade tal cual al guardado (criaturas, hora del día...).
+static func a_diccionario(tablero: Tablero, pieza_actual: StringName, extra: Dictionary = {}) -> Dictionary:
 	var celdas: Array = []
 	for coord in tablero.coordenadas():
 		celdas.append({
@@ -14,11 +15,14 @@ static func a_diccionario(tablero: Tablero, pieza_actual: StringName) -> Diction
 			"pieza": String(tablero.pieza_en(coord).id),
 			"giro": tablero.giro_en(coord),
 		})
-	return {"version": VERSION, "pieza_actual": String(pieza_actual), "celdas": celdas}
+	var resultado: Dictionary = {"version": VERSION, "pieza_actual": String(pieza_actual), "celdas": celdas}
+	resultado.merge(extra)
+	return resultado
 
 
 ## Reconstruye una partida. `piezas` mapea id (StringName) -> PiezaDatos.
-## Devuelve { "tablero": Tablero, "pieza_actual": StringName, "omitidas": int },
+## Devuelve { "tablero": Tablero, "pieza_actual": StringName, "omitidas": int, "datos": Dictionary },
+## donde "datos" es el guardado completo (para leer lo que se añadió con `extra`),
 ## o un diccionario vacío si los datos no son válidos o no hay ninguna pieza reconocible.
 ## Las piezas de ids desconocidos se omiten (p. ej. si una actualización las quitó).
 static func desde_diccionario(datos: Dictionary, piezas: Dictionary) -> Dictionary:
@@ -41,6 +45,7 @@ static func desde_diccionario(datos: Dictionary, piezas: Dictionary) -> Dictiona
 		"tablero": tablero,
 		"pieza_actual": StringName(str(datos.get("pieza_actual", ""))),
 		"omitidas": omitidas,
+		"datos": datos,
 	}
 
 
