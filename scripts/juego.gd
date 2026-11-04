@@ -39,7 +39,11 @@ var _clima := Clima.new()
 var _conteo: Dictionary = {}
 var _espera_paseo: float = 4.0
 var _espera_panel: float = 0.0
-var _partida_nueva: bool = false
+var _tutorial := Tutorial.new()
+var _ultima_colocada: Vector2i = Vector2i.ZERO
+var _hay_ultima: bool = false
+var _pulso_objetivo: Control
+var _pulso_tween: Tween
 var _aviso_tween: Tween
 var _azar := RandomNumberGenerator.new()
 
@@ -49,6 +53,7 @@ var _azar := RandomNumberGenerator.new()
 @onready var _aviso: Label = $Interfaz/Aviso
 @onready var _hud_recursos: RecursosHud = $Interfaz/Recursos
 @onready var _panel: PanelConstruccion = $Interfaz/PanelConstruccion
+@onready var _panel_tutorial: PanelTutorial = $Interfaz/PanelTutorial
 @onready var _boton_pausa: Button = $Interfaz/BotonPausa
 @onready var _camara: CamaraControl = $Camara
 @onready var _barra: PanelContainer = $Interfaz/Barra
@@ -98,6 +103,8 @@ func _ready() -> void:
 	_panel.construir_pedido.connect(_al_pedir_construir)
 	_panel.quitar_pedido.connect(_al_pedir_quitar)
 	_panel.cerrado.connect(_deseleccionar)
+	_panel_tutorial.siguiente_pedido.connect(_al_siguiente_tutorial)
+	_panel_tutorial.saltar_pedido.connect(_al_saltar_tutorial)
 	_boton_pausa.pressed.connect(_pausar)
 	%PausaContinuar.pressed.connect(_reanudar)
 	%PausaAjustes.pressed.connect(_abrir_ajustes_pausa)
@@ -105,8 +112,7 @@ func _ready() -> void:
 	_ajustes.cerrado.connect(_cerrar_ajustes_pausa)
 	_pausa.visible = false
 	_actualizar_interfaz()
-	if _partida_nueva:
-		_avisar("Toca una pieza colocada para construir sobre ella")
+	_actualizar_tutorial()
 
 
 func _process(delta: float) -> void:
@@ -182,10 +188,18 @@ func _iniciar_partida(piezas: Array[PiezaDatos]) -> void:
 			for construccion in _construcciones:
 				construcciones_por_id[construccion.id] = construccion
 			_economia.desde_diccionario(datos["economia"], construcciones_por_id, _tablero)
+		if datos.get("tutorial") is Dictionary:
+			_tutorial.desde_diccionario(datos["tutorial"])
+			_buscar_pieza_del_tutorial()
 		return
-	_partida_nueva = true
 	_tablero.colocar(Vector2i.ZERO, por_id.get(PIEZA_INICIAL, _mazo.robar()))
 	_robar()
+	if Preferencias.mostrar_tutorial:
+		_tutorial.iniciar()
+		# Se garantiza una pieza de bosque para poder sugerir el aserradero.
+		var inicial: PiezaDatos = por_id.get(Tutorial.PIEZA_INICIAL)
+		if inicial != null:
+			_pieza_actual = inicial
 
 
 func _guardar() -> void:
@@ -194,6 +208,7 @@ func _guardar() -> void:
 			"fase": _ciclo.fase(),
 			"criaturas": _ecosistema.a_array(),
 			"economia": _economia.a_diccionario(),
+			"tutorial": _tutorial.a_diccionario(),
 		}
 		Guardado.guardar(ruta_guardado, Guardado.a_diccionario(_tablero, _pieza_actual.id, extra))
 
@@ -215,7 +230,7 @@ func _robar() -> void:
 
 
 func _al_tocar_mundo(posicion_pantalla: Vector2, posicion_mundo: Vector2) -> void:
-	for control: Control in [_barra, _panel, _hud_recursos, _boton_pausa]:
+	for control: Control in [_barra, _panel, _panel_tutorial, _hud_recursos, _boton_pausa]:
 		if control.visible and control.get_global_rect().has_point(posicion_pantalla):
 			return
 	var coord: Vector2i = Hex.pixel_a_axial(posicion_mundo, _vista.tamano_hex)
@@ -228,6 +243,7 @@ func _al_tocar_mundo(posicion_pantalla: Vector2, posicion_mundo: Vector2) -> voi
 	_hay_pendiente = true
 	_pendiente = coord
 	_actualizar_interfaz()
+	_evento_tutorial(&"hueco_elegido")
 
 
 func _seleccionar(coord: Vector2i) -> void:
@@ -235,15 +251,20 @@ func _seleccionar(coord: Vector2i) -> void:
 	_seleccion = coord
 	_vista.seleccionar(coord)
 	_mostrar_panel()
+	if _tablero.pieza_en(coord).id == Tutorial.PIEZA_INICIAL:
+		_evento_tutorial(&"pieza_seleccionada")
+	_actualizar_tutorial()
 
 
 func _deseleccionar() -> void:
 	_hay_seleccion = false
 	_vista.deseleccionar()
 	_panel.ocultar()
+	_actualizar_tutorial()
 
 
 func _mostrar_panel() -> void:
+	_pulsar(null)  # los botones del panel se recrean: se suelta el brillo antes
 	_panel.mostrar(
 		_seleccion, _tablero.pieza_en(_seleccion), _economia.construcciones.get(_seleccion),
 		_construcciones, _economia, _tablero
@@ -256,6 +277,7 @@ func _al_pedir_construir(construccion: ConstruccionDatos) -> void:
 	_sonido_colocar.play()
 	_vista.animar_colocacion(_seleccion, true)
 	_avisar("Construido: " + construccion.nombre)
+	_evento_tutorial(&"construido")
 	_guardar()
 	_hud_recursos.actualizar(_economia)
 	_mostrar_panel()
@@ -275,6 +297,7 @@ func _al_pedir_quitar() -> void:
 func _al_girar() -> void:
 	_giro = posmod(_giro + 1, 6)
 	_actualizar_interfaz()
+	_evento_tutorial(&"girado")
 
 
 func _al_confirmar() -> void:
@@ -284,6 +307,8 @@ func _al_confirmar() -> void:
 	var coord: Vector2i = _pendiente
 	_tablero.colocar(coord, _pieza_actual, _giro)
 	_hay_pendiente = false
+	_ultima_colocada = coord
+	_hay_ultima = true
 	_robar()
 	_vista.animar_colocacion(coord, perfecta)
 	if perfecta:
@@ -300,6 +325,7 @@ func _al_confirmar() -> void:
 		_avisar("Ha llegado: " + " y ".join(nombres))
 	_guardar()
 	_actualizar_interfaz()
+	_evento_tutorial(&"pieza_colocada")
 
 
 func _pausar() -> void:
@@ -349,3 +375,76 @@ func _actualizar_interfaz() -> void:
 		_encaje.text = ""
 		_vista.ocultar_pendiente()
 	_vista.queue_redraw()
+
+
+# --- Tutorial -------------------------------------------------------------
+
+func _evento_tutorial(nombre: StringName) -> void:
+	if _tutorial.evento(nombre):
+		_guardar()
+		_actualizar_tutorial()
+
+
+func _al_siguiente_tutorial() -> void:
+	_tutorial.siguiente()
+	_guardar()
+	_actualizar_tutorial()
+
+
+func _al_saltar_tutorial() -> void:
+	_tutorial.saltar()
+	_guardar()
+	_avisar("Tutorial omitido. Puedes volver a activarlo en Ajustes.")
+	_actualizar_tutorial()
+
+
+## Si se cargó una partida a medio tutorial, recupera la pieza de bosque que hay que señalar.
+func _buscar_pieza_del_tutorial() -> void:
+	if _tutorial.terminado() or _hay_ultima:
+		return
+	for coord in _tablero.coordenadas():
+		if _tablero.pieza_en(coord).id == Tutorial.PIEZA_INICIAL:
+			_ultima_colocada = coord
+			_hay_ultima = true
+			return
+
+
+## Muestra el texto del paso actual y las guías visuales que le tocan.
+func _actualizar_tutorial() -> void:
+	_pulsar(null)
+	_vista.quitar_guia()
+	if _tutorial.terminado():
+		_panel_tutorial.ocultar()
+		return
+	_panel_tutorial.mostrar(_tutorial.texto(), _tutorial.tiene_boton(), _tutorial.texto_boton())
+	match _tutorial.paso:
+		Tutorial.Paso.COLOCAR:
+			_vista.guiar_huecos()
+		Tutorial.Paso.GIRAR:
+			_pulsar(_girar)
+		Tutorial.Paso.CONFIRMAR:
+			_pulsar(_confirmar)
+		Tutorial.Paso.ELEGIR_PIEZA:
+			if _hay_ultima:
+				_vista.guiar_pieza(_ultima_colocada)
+		Tutorial.Paso.CONSTRUIR:
+			var boton: Button = _panel.boton_de(Tutorial.CONSTRUCCION_SUGERIDA) if _panel.visible else null
+			if boton != null:
+				_pulsar(boton)
+			elif _hay_ultima:
+				_vista.guiar_pieza(_ultima_colocada)
+
+
+## Hace brillar un control para llamar la atención (null para quitar el brillo).
+func _pulsar(control: Control) -> void:
+	if _pulso_tween != null:
+		_pulso_tween.kill()
+		_pulso_tween = null
+	if _pulso_objetivo != null and is_instance_valid(_pulso_objetivo):
+		_pulso_objetivo.modulate = Color.WHITE
+	_pulso_objetivo = control
+	if control == null:
+		return
+	_pulso_tween = create_tween().set_loops()
+	_pulso_tween.tween_property(control, "modulate", Color(1.45, 1.45, 1.1), 0.5)
+	_pulso_tween.tween_property(control, "modulate", Color.WHITE, 0.5)

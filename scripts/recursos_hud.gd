@@ -19,7 +19,8 @@ func configurar(datos: Array[RecursoDatos]) -> void:
 		if recurso.icono != null:
 			var icono := TextureRect.new()
 			icono.texture = recurso.icono
-			icono.custom_minimum_size = Vector2(22, 22)
+			icono.custom_minimum_size = Vector2(30, 30)
+			icono.texture_filter = CanvasItem.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 			icono.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 			icono.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 			fila.add_child(icono)

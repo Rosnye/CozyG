@@ -1,6 +1,8 @@
-[gd_resource type="Resource" script_class="RecursoDatos" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="RecursoDatos" load_steps=3 format=3]
 
 [ext_resource type="Script" path="res://scripts/recurso_datos.gd" id="1"]
+
+[ext_resource type="Texture2D" path="res://art/recursos/piedra.svg" id="2"]
 
 [resource]
 script = ExtResource("1")
@@ -8,3 +10,4 @@ id = &"piedra"
 nombre = "Piedra"
 color = Color(0.55, 0.55, 0.58, 1)
 inicial = 0
+icono = ExtResource("2")

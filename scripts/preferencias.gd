@@ -9,6 +9,8 @@ const BUS_EFECTOS: StringName = &"Efectos"
 
 static var volumen_musica: float = 0.8
 static var volumen_efectos: float = 0.8
+## Si las partidas nuevas empiezan con el mini tutorial.
+static var mostrar_tutorial: bool = true
 
 static var _iniciado: bool = false
 
@@ -49,6 +51,7 @@ static func guardar() -> void:
 	var archivo := ConfigFile.new()
 	archivo.set_value("audio", "musica", volumen_musica)
 	archivo.set_value("audio", "efectos", volumen_efectos)
+	archivo.set_value("juego", "mostrar_tutorial", mostrar_tutorial)
 	archivo.save(RUTA)
 
 
@@ -58,6 +61,7 @@ static func cargar() -> void:
 		return
 	volumen_musica = clampf(float(archivo.get_value("audio", "musica", volumen_musica)), 0.0, 1.0)
 	volumen_efectos = clampf(float(archivo.get_value("audio", "efectos", volumen_efectos)), 0.0, 1.0)
+	mostrar_tutorial = bool(archivo.get_value("juego", "mostrar_tutorial", mostrar_tutorial))
 
 
 static func _asegurar_bus(nombre: StringName) -> void:

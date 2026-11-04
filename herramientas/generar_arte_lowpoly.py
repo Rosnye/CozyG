@@ -4,8 +4,8 @@ Uso, desde la raíz del proyecto:
     python herramientas/generar_arte_lowpoly.py
 
 Lee los datos (`data/piezas`, `data/construcciones`, `data/criaturas`, `data/terrenos.tres`),
-escribe un SVG por elemento en `art/piezas`, `art/construcciones` y `art/criaturas`, y enlaza
-cada uno en su `.tres` (campo `arte`) si aún no lo tiene. Es determinista: la misma pieza
+escribe un SVG por elemento en `art/piezas`, `art/construcciones`, `art/criaturas` y `art/recursos`,
+y enlaza cada uno en su `.tres` (campo `arte`, o `icono` en los recursos) si aún no lo tiene. Es determinista: la misma pieza
 sale siempre igual. Cuando llegue arte definitivo basta con cambiar el campo `arte`.
 """
 import glob
@@ -66,15 +66,15 @@ def leer_terrenos():
     return terrenos
 
 
-def enlazar_arte(datos, ruta_recurso):
-    """Añade `arte = ...` al .tres si todavía no lo tiene (idempotente)."""
-    if re.search(r"^arte = ", datos["texto"], re.M):
+def enlazar_arte(datos, ruta_recurso, campo="arte"):
+    """Añade `<campo> = ...` al .tres si todavía no lo tiene (idempotente)."""
+    if re.search(rf"^{campo} = ", datos["texto"], re.M):
         return False
     texto = datos["texto"]
     texto = re.sub(r"load_steps=\d+", "load_steps=3", texto, count=1)
     ext = f'[ext_resource type="Texture2D" path="{ruta_recurso}" id="2"]\n'
     texto = texto.replace("\n[resource]", "\n" + ext + "\n[resource]", 1) if "[ext_resource" in texto else texto
-    texto = texto.rstrip("\n") + '\narte = ExtResource("2")\n'
+    texto = texto.rstrip("\n") + f'\n{campo} = ExtResource("2")\n'
     with open(datos["ruta"], "w", encoding="utf-8", newline="\n") as f:
         f.write(texto)
     return True
@@ -330,6 +330,38 @@ def svg128(partes):
     return '<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">\n' + "\n".join(partes) + "\n</svg>\n"
 
 
+# --- Iconos de recursos -----------------------------------------------------
+
+def icono_svg(datos):
+    id_ = datos["id"]
+    az = random.Random(semilla(id_))
+    pal = paleta(datos["color"])
+    p = []
+    if id_ == "madera":
+        for y, dx in ((40, 0), (58, 10)):
+            p += [poligono([(10 + dx, y), (46 + dx, y - 4), (46 + dx, y + 12), (10 + dx, y + 16)], mezcla("#8a5a30", "#000000", 0.1)),
+                  poligono([(10 + dx, y), (46 + dx, y - 4), (46 + dx, y + 2), (10 + dx, y + 6)], "#a87040")]
+            p += blob(az, 46 + dx, y + 4, 8, 10, paleta("#d9b27a"), 6)
+    elif id_ == "trigo":
+        for x, h in ((20, 46), (32, 54), (44, 44)):
+            p += [poligono([(x - 1.5, 58), (x + 1.5, 58), (x + 1.5, 58 - h * 0.6), (x - 1.5, 58 - h * 0.6)], "#b5a04a")]
+            for k in range(4):
+                y = 58 - h * 0.55 - k * 7
+                p += [poligono([(x, y), (x - 8, y - 6), (x - 2, y - 9)], pal["claro"]), poligono([(x, y), (x + 8, y - 6), (x + 2, y - 9)], pal["base"])]
+    elif id_ == "pescado":
+        p += blob(az, 30, 34, 22, 13, pal, 8)
+        p += [poligono([(48, 34), (62, 22), (62, 46)], pal["oscuro"]), poligono([(26, 22), (34, 12), (38, 24)], pal["oscuro"]),
+              poligono([(14, 31), (18, 28), (18, 34)], "#2a211a")]
+    elif id_ == "carne":
+        p += blob(az, 28, 30, 18, 15, pal, 8)
+        p += [poligono([(40, 40), (56, 54), (52, 58), (36, 46)], "#f2ebd8"), poligono([(52, 54), (60, 52), (58, 60), (52, 62)], "#f2ebd8")]
+    elif id_ == "piedra":
+        p += roca(az, 26, 38, 18, pal) + roca(az, 44, 44, 13, paleta("#6f6f78"))
+    elif id_ == "mineral":
+        p += cristal(az, 24, 38, 11, paleta("#9fb2d8")) + cristal(az, 44, 36, 14, pal) + cristal(az, 34, 46, 8, paleta("#e6edf8"))
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">\n' + "\n".join(p) + "\n</svg>\n"
+
+
 # --- Principal --------------------------------------------------------------
 
 def escribir(ruta, contenido):
@@ -341,16 +373,17 @@ def escribir(ruta, contenido):
 def main():
     terrenos = leer_terrenos()
     grupos = [
-        ("piezas", "data/piezas", lambda d: pieza_svg(d, terrenos)),
-        ("construcciones", "data/construcciones", construccion_svg),
-        ("criaturas", "data/criaturas", criatura_svg),
+        ("piezas", "data/piezas", lambda d: pieza_svg(d, terrenos), "arte"),
+        ("construcciones", "data/construcciones", construccion_svg, "arte"),
+        ("criaturas", "data/criaturas", criatura_svg, "arte"),
+        ("recursos", "data/recursos", icono_svg, "icono"),
     ]
-    for carpeta_arte, carpeta_datos, generar in grupos:
+    for carpeta_arte, carpeta_datos, generar, campo in grupos:
         for ruta in sorted(glob.glob(os.path.join(RAIZ_PROYECTO, carpeta_datos, "*.tres"))):
             datos = leer(ruta)
             ruta_svg = os.path.join(RAIZ_PROYECTO, "art", carpeta_arte, datos["id"] + ".svg")
             escribir(ruta_svg, generar(datos))
-            nuevo = enlazar_arte(datos, f"res://art/{carpeta_arte}/{datos['id']}.svg")
+            nuevo = enlazar_arte(datos, f"res://art/{carpeta_arte}/{datos['id']}.svg", campo)
             print(("enlazado " if nuevo else "regenerado ") + f"{carpeta_arte}/{datos['id']}")
 
 
