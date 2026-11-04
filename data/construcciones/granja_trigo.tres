@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ConstruccionDatos" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/construccion_datos.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"granja_trigo"
+nombre = "Granja de trigo"
+color = Color(0.88, 0.72, 0.25, 1)
+produce = &"trigo"
+por_minuto = 12.0
+afinidad = {&"tierra": 1.0, &"prado": 0.3}
+costo = {&"madera": 12}

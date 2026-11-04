@@ -7,5 +7,8 @@ script = ExtResource("1")
 colores = {
 &"agua": Color(0.45, 0.68, 0.78, 1),
 &"bosque": Color(0.36, 0.55, 0.34, 1),
-&"prado": Color(0.74, 0.82, 0.45, 1)
+&"mineral": Color(0.8, 0.84, 0.9, 1),
+&"piedra": Color(0.55, 0.55, 0.58, 1),
+&"prado": Color(0.74, 0.82, 0.45, 1),
+&"tierra": Color(0.6, 0.43, 0.28, 1)
 }

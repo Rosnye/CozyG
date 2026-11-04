@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ConstruccionDatos" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/construccion_datos.gd" id="1"]
+
+[resource]
+script = ExtResource("1")
+id = &"pesqueria"
+nombre = "Pesquería"
+color = Color(0.3, 0.5, 0.75, 1)
+produce = &"pescado"
+por_minuto = 12.0
+afinidad = {&"agua": 1.0}
+costo = {&"madera": 10}

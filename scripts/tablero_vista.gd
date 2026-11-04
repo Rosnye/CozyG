@@ -15,7 +15,11 @@ const DURACION_ONDA: float = 0.6
 @export var color_desajuste: Color = Color(0.95, 0.7, 0.35, 1)
 
 var tablero: Tablero
+## Vector2i -> ConstruccionDatos (lo que hay construido sobre cada pieza).
+var construcciones: Dictionary = {}
 
+var _hay_seleccion: bool = false
+var _seleccion: Vector2i = Vector2i.ZERO
 var _hay_pendiente: bool = false
 var _pendiente_coord: Vector2i = Vector2i.ZERO
 var _pendiente_pieza: PiezaDatos
@@ -43,6 +47,18 @@ func mostrar_pendiente(coord: Vector2i, pieza: PiezaDatos, giro: int, encaja: bo
 
 func ocultar_pendiente() -> void:
 	_hay_pendiente = false
+	queue_redraw()
+
+
+## Resalta la pieza elegida para construir.
+func seleccionar(coord: Vector2i) -> void:
+	_hay_seleccion = true
+	_seleccion = coord
+	queue_redraw()
+
+
+func deseleccionar() -> void:
+	_hay_seleccion = false
 	queue_redraw()
 
 
@@ -81,6 +97,10 @@ func _draw() -> void:
 			self, Hex.axial_a_pixel(coord, tamano_hex), tamano_hex,
 			tablero.pieza_en(coord), tablero.giro_en(coord), terrenos, 1.0, escala
 		)
+	for coord: Vector2i in construcciones:
+		_dibujar_construccion(coord, construcciones[coord])
+	if _hay_seleccion:
+		draw_polyline(_contorno(_seleccion, 0.97), color_seleccion, 4.0, true)
 	for coord: Vector2i in _animaciones:
 		if _animaciones[coord]["perfecta"]:
 			_dibujar_onda(coord, _animaciones[coord]["tiempo"])
@@ -91,6 +111,25 @@ func _draw() -> void:
 		)
 		var color: Color = color_encaje if _pendiente_encaja else color_desajuste
 		draw_polyline(_contorno(_pendiente_coord, 0.97), color, 5.0, true)
+
+
+## Casita provisional del color de la construcción; con `arte` se dibuja la textura.
+func _dibujar_construccion(coord: Vector2i, construccion: ConstruccionDatos) -> void:
+	var centro: Vector2 = Hex.axial_a_pixel(coord, tamano_hex)
+	var s: float = tamano_hex * 0.36
+	if construccion.arte != null:
+		draw_texture_rect(construccion.arte, Rect2(centro - Vector2(s, s) * 1.3, Vector2(s, s) * 2.6), false)
+		return
+	var paredes := Rect2(centro + Vector2(-s, -s * 0.2), Vector2(2.0 * s, 1.2 * s))
+	var techo := PackedVector2Array([
+		centro + Vector2(-s * 1.25, -s * 0.2), centro + Vector2(0, -s * 1.25), centro + Vector2(s * 1.25, -s * 0.2)
+	])
+	var linea: Color = Color(0.2, 0.17, 0.14, 0.7)
+	draw_circle(centro + Vector2(0, s), s * 1.1, Color(0, 0, 0, 0.18))
+	draw_rect(paredes, construccion.color)
+	draw_rect(paredes, linea, false, 2.0)
+	draw_colored_polygon(techo, construccion.color.darkened(0.3))
+	draw_polyline(PackedVector2Array([techo[0], techo[1], techo[2], techo[0]]), linea, 2.0, true)
 
 
 ## Rebote suave: arranca pequeña, se pasa un poco y se asienta.

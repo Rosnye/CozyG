@@ -1,4 +1,4 @@
-[gd_resource type="Theme" load_steps=7 format=3]
+[gd_resource type="Theme" load_steps=8 format=3]
 
 [sub_resource type="StyleBoxFlat" id="fondo"]
 bg_color = Color(0.956863, 0.917647, 0.835294, 1)
@@ -45,6 +45,17 @@ content_margin_top = 18.0
 content_margin_right = 28.0
 content_margin_bottom = 18.0
 
+[sub_resource type="StyleBoxFlat" id="flotante"]
+bg_color = Color(0.89, 0.83, 0.7, 0.93)
+corner_radius_top_left = 20
+corner_radius_top_right = 20
+corner_radius_bottom_right = 20
+corner_radius_bottom_left = 20
+content_margin_left = 16.0
+content_margin_top = 10.0
+content_margin_right = 16.0
+content_margin_bottom = 10.0
+
 [resource]
 default_font_size = 28
 Panel/styles/panel = SubResource("fondo")
@@ -61,3 +72,9 @@ Button/styles/focus = SubResource("boton_hover")
 TituloLabel/base_type = &"Label"
 TituloLabel/colors/font_color = Color(0.32, 0.4, 0.22, 1)
 TituloLabel/font_sizes/font_size = 64
+PanelFlotante/base_type = &"PanelContainer"
+PanelFlotante/styles/panel = SubResource("flotante")
+EtiquetaPequena/base_type = &"Label"
+EtiquetaPequena/font_sizes/font_size = 22
+BotonPequeno/base_type = &"Button"
+BotonPequeno/font_sizes/font_size = 22
