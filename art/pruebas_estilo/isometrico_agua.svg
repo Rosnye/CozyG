@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><g transform="translate(128,128)"><defs><linearGradient id="iagua1" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b4dcec"/><stop offset="1" stop-color="#73aec7"/></linearGradient></defs>
+<ellipse cx="0" cy="66.2" rx="95.0" ry="15.7" fill="#000" opacity="0.14"/>
+<polygon points="-86.6,15.0 0.0,43.0 0.0,69.0 -86.6,41.0" fill="#4f8ea9" stroke="#4d4233" stroke-opacity="0.5" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="0.0,43.0 86.6,15.0 86.6,41.0 0.0,69.0" fill="#3b6a7f" stroke="#4d4233" stroke-opacity="0.5" stroke-width="2" stroke-linejoin="round"/>
+<polygon points="86.6,-41.0 86.6,15.0 0.0,43.0 -86.6,15.0 -86.6,-41.0 -0.0,-69.0" fill="url(#iagua1)" stroke="#4d4233" stroke-opacity="0.5" stroke-width="2" stroke-linejoin="round"/>
+<ellipse cx="-44.2" cy="-28.4" rx="19.0" ry="7.0" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/>
+<ellipse cx="-44.2" cy="-28.4" rx="11.8" ry="4.3" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/>
+<ellipse cx="35.4" cy="-33.9" rx="19.0" ry="7.0" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/>
+<ellipse cx="35.4" cy="-33.9" rx="11.8" ry="4.3" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/>
+<ellipse cx="-45.7" cy="-17.2" rx="19.0" ry="7.0" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/>
+<ellipse cx="-45.7" cy="-17.2" rx="11.8" ry="4.3" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/>
+<ellipse cx="11.0" cy="-26.3" rx="19.0" ry="7.0" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/>
+<ellipse cx="11.0" cy="-26.3" rx="11.8" ry="4.3" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/>
+<ellipse cx="24.7" cy="-22.0" rx="19.0" ry="7.0" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/>
+<ellipse cx="24.7" cy="-22.0" rx="11.8" ry="4.3" fill="none" stroke="#b4dcec" stroke-width="2" opacity="0.8"/></g></svg>

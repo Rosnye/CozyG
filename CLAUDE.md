@@ -22,7 +22,8 @@ scripts/  código GDScript (.gd); la lógica pura está en scripts/hex/ (Hex, Ta
 data/     recursos de datos: tema_brote.tres, piezas/ (.tres), criaturas, biomas
 art/      imágenes, sonidos, música (provisionales por ahora)
 tests/    pruebas automáticas de la lógica
-herramientas/  scripts auxiliares (generador de sonidos provisionales)
+herramientas/  scripts auxiliares (sonidos provisionales, prueba de estilos de arte)
+docs/     guías (prueba con jugadores)
 ```
 
 ## Convenciones
@@ -61,7 +62,10 @@ Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --im
 - Día/noche y clima: `Ciclo` (fase 0..1, día de 300 s) y `Clima` (despejado/lluvia con transición suave) son lógica pura. `Atmosfera` aplica el tinte (`data/ciclo_dia.tres`), la lluvia (`LluviaVista`) y el volumen de las capas de audio.
 - Audio por capas: `Ambiente.volumenes` decide el nivel de base, melodía, agua, aves, grillos y lluvia según luz, clima y lo construido. Los loops están en `art/sonidos/ambiente/` y los genera `python herramientas/generar_sonidos.py` (provisionales; basta reemplazar los `.wav` y mantener `edit/loop_mode=2` en su `.import`).
 - Pruebas que usan la escena completa deben fijar `ruta_guardado` en `juego.gd` antes de añadirla al árbol: headless comparte `user://` con el juego real y pisaría la partida guardada.
-- Teclas: R gira, Enter/Espacio confirma.
+- Economía (Etapa 4): `RecursoDatos` (`data/recursos/`) y `ConstruccionDatos` (`data/construcciones/`) son datos; `Economia` (lógica pura) lleva los recursos y las construcciones. Cada pieza admite una construcción, que rinde según los terrenos de sus bordes (`afinidad`, cada borde aporta 1/6; 0 = no se puede construir). Tocar una pieza colocada abre `PanelConstruccion`; `RecursosHud` es el indicador de arriba a la derecha. Se guarda en el mismo archivo de partida.
+- Biomas: prado, bosque, agua, tierra (café, para trigo), piedra (gris, cantera) y mineral (plateado, mina de plata). Los colores están en `data/terrenos.tres`.
+- Menú, pausa y ajustes: `scenes/menu.tscn` es la escena principal; la pausa vive en `juego.tscn` (Esc o botón II). `Preferencias` guarda los volúmenes en `user://ajustes.cfg` y crea los buses `Musica` y `Efectos`.
+- Teclas: R gira, Enter/Espacio confirma, Esc pausa.
 - Los colores del tablero (huecos, contornos del fantasma) son `@export` de `TableroVista`; los de interfaz van en el tema.
 
 ## Estado actual
@@ -69,4 +73,5 @@ Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --im
 - [x] Etapa 0: cimientos (proyecto, estructura, escena de prueba)
 - [x] Etapa 1: prototipo gris (hexágonos, mazo, colocar, girar, cámara)
 - [x] Etapa 2: reglas de encaje, recompensa y guardado
-- [~] Etapa 3: 5 criaturas, ciclo día/noche, lluvia y audio por capas implementados; falta juzgar jugando si dejar el juego abierto resulta relajante
+- [x] Etapa 3: criaturas, ciclo día/noche, lluvia y audio por capas
+- [~] Etapa 4: menú, pausa, ajustes, biomas nuevos, construcciones y recursos listos; prueba de estilos en `art/pruebas_estilo/`; faltan elegir el estilo y probar con 5 a 10 personas (`docs/guia-de-prueba.md`)
