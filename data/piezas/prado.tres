@@ -8,3 +8,4 @@ id = &"prado"
 nombre = "Prado"
 color = Color(0.74, 0.82, 0.45, 1)
 peso = 3
+bordes = Array[StringName]([&"prado", &"prado", &"prado", &"prado", &"prado", &"prado"])

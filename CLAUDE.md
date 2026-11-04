@@ -47,15 +47,20 @@ godot --headless --path . --script res://tests/ejecutar_pruebas.gd
 
 Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --import`. Sale con código 1 si alguna falla.
 
-## Juego (Etapa 1)
+## Juego (Etapas 1 y 2)
 
 - Escena principal: `scenes/juego.tscn` (`scripts/juego.gd` une todo).
-- `Tablero` guarda las celdas y las reglas básicas (colocar solo junto a otra pieza); `TableroVista` solo dibuja; `CamaraControl` hace arrastre, zoom (rueda y pellizco) y avisa de los toques.
-- Las piezas son `PiezaDatos` (`data/piezas/*.tres`): añadir un `.tres` ahí basta para que entre en el mazo. El arte provisional es el `color`; cuando exista `arte`, se dibuja en su lugar.
+- `Tablero` guarda las celdas, la regla de colocación (junto a otra pieza) y el encaje (`evaluar`, `encaja_perfecto`); `TableroVista` solo dibuja y anima; `CamaraControl` hace arrastre, zoom (rueda y pellizco) y avisa de los toques.
+- Las piezas son `PiezaDatos` (`data/piezas/*.tres`): añadir un `.tres` ahí basta para que entre en el mazo. Cada pieza tiene 6 `bordes` (terreno por dirección, en el orden de `Hex.DIRECCIONES`); girar la pieza gira sus bordes. Los colores de los terrenos están en `data/terrenos.tres`.
+- Regla de encaje: se puede colocar siempre junto a otra pieza (no hay derrota). Si todos los bordes compartidos coinciden es un "encaje perfecto": onda, partículas y sonido. El contorno del fantasma es verde si encaja y naranja si no.
+- Dibujo provisional: un sector de color por borde (`DibujoPieza`). Cuando una pieza tenga `arte`, se dibuja la textura en su lugar.
+- Guardado: `Guardado` (JSON con versión) en `user://guardado.json`, tras cada pieza y al cerrar o pausar la app. Para empezar de cero, borrar ese archivo (en Windows: `%APPDATA%\Godot\app_userdata\Brote\guardado.json`). Una pieza con id desconocido en un guardado se omite sin perder el resto.
+- Sonidos provisionales en `art/sonidos/` (generados; se pueden sustituir).
 - Teclas: R gira, Enter/Espacio confirma.
-- Los colores del tablero (contorno, huecos) son `@export` de `TableroVista`; los de interfaz van en el tema.
+- Los colores del tablero (huecos, contornos del fantasma) son `@export` de `TableroVista`; los de interfaz van en el tema.
 
 ## Estado actual
 
 - [x] Etapa 0: cimientos (proyecto, estructura, escena de prueba)
-- [~] Etapa 1: prototipo gris implementado (hexágonos, mazo, colocar, girar, cámara); falta el criterio "10 minutos se sienten bien", que se juzga jugando
+- [x] Etapa 1: prototipo gris (hexágonos, mazo, colocar, girar, cámara)
+- [~] Etapa 2: encaje, recompensa y guardado implementados; falta juzgar jugando si colocar bien se siente premiado

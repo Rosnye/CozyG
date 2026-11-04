@@ -1,8 +1,26 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=11 format=3]
 
 [ext_resource type="Script" path="res://scripts/juego.gd" id="1"]
 [ext_resource type="Script" path="res://scripts/tablero_vista.gd" id="2"]
 [ext_resource type="Script" path="res://scripts/camara_control.gd" id="3"]
+[ext_resource type="Script" path="res://scripts/pieza_preview.gd" id="4"]
+[ext_resource type="Resource" path="res://data/terrenos.tres" id="5"]
+[ext_resource type="AudioStream" path="res://art/sonidos/encaje.wav" id="6"]
+[ext_resource type="AudioStream" path="res://art/sonidos/colocar.wav" id="7"]
+
+[sub_resource type="Gradient" id="gradiente_punto"]
+colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
+
+[sub_resource type="GradientTexture2D" id="textura_punto"]
+gradient = SubResource("gradiente_punto")
+width = 32
+height = 32
+fill = 1
+fill_from = Vector2(0.5, 0.5)
+fill_to = Vector2(1, 0.5)
+
+[sub_resource type="Gradient" id="desvanecer"]
+colors = PackedColorArray(1, 0.97, 0.75, 1, 1, 0.97, 0.75, 0)
 
 [node name="Juego" type="Node"]
 script = ExtResource("1")
@@ -20,9 +38,37 @@ mouse_filter = 2
 
 [node name="Tablero" type="Node2D" parent="."]
 script = ExtResource("2")
+terrenos = ExtResource("5")
+
+[node name="Particulas" type="CPUParticles2D" parent="Tablero"]
+z_index = 10
+emitting = false
+amount = 16
+texture = SubResource("textura_punto")
+lifetime = 0.8
+one_shot = true
+explosiveness = 1.0
+direction = Vector2(0, -1)
+spread = 180.0
+gravity = Vector2(0, 40)
+initial_velocity_min = 80.0
+initial_velocity_max = 170.0
+damping_min = 60.0
+damping_max = 100.0
+scale_amount_min = 0.3
+scale_amount_max = 0.6
+color_ramp = SubResource("desvanecer")
 
 [node name="Camara" type="Camera2D" parent="."]
 script = ExtResource("3")
+
+[node name="SonidoEncaje" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("6")
+volume_db = -8.0
+
+[node name="SonidoColocar" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("7")
+volume_db = -12.0
 
 [node name="Interfaz" type="CanvasLayer" parent="."]
 
@@ -39,11 +85,12 @@ grow_vertical = 0
 layout_mode = 2
 theme_override_constants/separation = 20
 
-[node name="Muestra" type="ColorRect" parent="Interfaz/Barra/Fila"]
+[node name="Muestra" type="Control" parent="Interfaz/Barra/Fila"]
 unique_name_in_owner = true
-custom_minimum_size = Vector2(64, 64)
+custom_minimum_size = Vector2(80, 80)
 layout_mode = 2
 size_flags_vertical = 4
+script = ExtResource("4")
 
 [node name="Info" type="VBoxContainer" parent="Interfaz/Barra/Fila"]
 layout_mode = 2
@@ -58,6 +105,11 @@ text = "Pieza"
 unique_name_in_owner = true
 layout_mode = 2
 text = "Piezas: 0"
+
+[node name="Encaje" type="Label" parent="Interfaz/Barra/Fila/Info"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(220, 0)
+layout_mode = 2
 
 [node name="Espacio" type="Control" parent="Interfaz/Barra/Fila"]
 layout_mode = 2

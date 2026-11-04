@@ -57,6 +57,35 @@ func colocar(coord: Vector2i, pieza: PiezaDatos, giro: int = 0) -> bool:
 	return true
 
 
+## Cómo encajaría `pieza` girada `giro` en `coord`: cuántos vecinos ocupados tiene
+## y en cuántos coincide el terreno del borde compartido.
+## Devuelve { "vecinos": int, "coinciden": int }. No coloca nada.
+func evaluar(coord: Vector2i, pieza: PiezaDatos, giro: int) -> Dictionary:
+	var vecinos: int = 0
+	var coinciden: int = 0
+	for direccion in 6:
+		var otro := Hex.vecino(coord, direccion)
+		if not _celdas.has(otro):
+			continue
+		vecinos += 1
+		var mi_borde: StringName = pieza.borde(direccion, giro)
+		var su_borde: StringName = _celdas[otro]["pieza"].borde(direccion + 3, _celdas[otro]["giro"])
+		if mi_borde == su_borde:
+			coinciden += 1
+	return {"vecinos": vecinos, "coinciden": coinciden}
+
+
+## Encaje perfecto: toca al menos una pieza y todos los bordes compartidos coinciden.
+func encaja_perfecto(coord: Vector2i, pieza: PiezaDatos, giro: int) -> bool:
+	var resultado := evaluar(coord, pieza, giro)
+	return resultado["vecinos"] > 0 and resultado["coinciden"] == resultado["vecinos"]
+
+
+## Coloca sin comprobar reglas (para cargar una partida guardada).
+func restaurar(coord: Vector2i, pieza: PiezaDatos, giro: int) -> void:
+	_celdas[coord] = {"pieza": pieza, "giro": posmod(giro, 6)}
+
+
 ## Huecos libres donde se puede colocar (sin repetidos).
 func frontera() -> Array[Vector2i]:
 	var vistos: Dictionary = {}
