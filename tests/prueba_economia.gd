@@ -163,3 +163,47 @@ func prueba_guardar_y_restaurar() -> void:
 	otra.desde_diccionario(sucio, {&"aserradero": aserradero}, t)
 	afirmar(otra.construcciones.is_empty(), "nada válido que restaurar")
 	afirmar_igual(otra.cantidad(&"madera"), 3, "los recursos sí se restauran")
+
+
+func prueba_multiplicador_por_vecinas() -> void:
+	afirmar_igual(Economia.multiplicador(0), 1.0, "sin vecinas: sin bonus")
+	afirmar(absf(Economia.multiplicador(1) - 1.05) < 0.0001, "una vecina: +5 %")
+	afirmar(absf(Economia.multiplicador(6) - 1.30) < 0.0001, "seis vecinas: +30 %")
+
+
+func prueba_vecinas_iguales_cuenta_solo_el_mismo_tipo() -> void:
+	var t := Tablero.new()
+	var bosque := _bosque()
+	var prado := _pieza(&"prado", [P, P, P, P, P, P] as Array[StringName])
+	t.colocar(Vector2i.ZERO, bosque)
+	t.colocar(Vector2i(1, 0), bosque)   # igual
+	t.colocar(Vector2i(0, 1), prado)    # distinta
+	t.colocar(Vector2i(-1, 1), bosque)  # igual
+	afirmar_igual(t.vecinas_iguales(Vector2i.ZERO, bosque), 2, "dos bosques y un prado alrededor")
+	afirmar_igual(t.vecinas_iguales(Vector2i(0, -1), bosque), 1, "un hueco vacío cuenta sus vecinas")
+	afirmar_igual(t.vecinas_iguales(Vector2i(5, 5), bosque), 0, "lejos: ninguna")
+
+
+func prueba_produccion_con_bonus_por_vecinas() -> void:
+	var e := _economia(0)
+	var t := Tablero.new()
+	var bosque := _bosque()
+	t.colocar(Vector2i.ZERO, bosque)
+	var aserradero := _construccion(&"aserradero", &"madera", {B: 1.0}, {}, 60.0)  # 1 por segundo
+	e.construir(Vector2i.ZERO, aserradero, t)
+	afirmar(absf(e.por_minuto_en(Vector2i.ZERO, aserradero, t) - 60.0) < 0.0001, "sin vecinas: 60/min")
+	t.colocar(Vector2i(1, 0), bosque)
+	t.colocar(Vector2i(0, 1), bosque)
+	afirmar(absf(e.por_minuto_en(Vector2i.ZERO, aserradero, t) - 66.0) < 0.0001, "dos vecinas iguales: +10 %")
+	e.avanzar(10.0, t)
+	afirmar_igual(e.cantidad(&"madera"), 11, "10 s a 1,1 por segundo = 11")
+
+
+func prueba_el_bonus_no_aplica_con_vecinas_de_otro_tipo() -> void:
+	var e := _economia(0)
+	var t := Tablero.new()
+	t.colocar(Vector2i.ZERO, _bosque())
+	t.colocar(Vector2i(1, 0), _pieza(&"claro", [B, B, B, P, P, P] as Array[StringName]))
+	var aserradero := _construccion(&"aserradero", &"madera", {B: 1.0}, {}, 60.0)
+	e.construir(Vector2i.ZERO, aserradero, t)
+	afirmar(absf(e.por_minuto_en(Vector2i.ZERO, aserradero, t) - 60.0) < 0.0001, "bosque y claro son tipos distintos")

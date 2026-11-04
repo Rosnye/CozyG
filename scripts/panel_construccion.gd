@@ -50,15 +50,17 @@ func mostrar(coord: Vector2i, pieza: PiezaDatos, actual: ConstruccionDatos, cata
 	for hijo in _rejilla.get_children():
 		hijo.queue_free()
 	_botones.clear()
+	var iguales: int = tablero.vecinas_iguales(coord, pieza)
+	var bonus: String = "" if iguales == 0 else " · %d vecinas iguales (+%d%%)" % [iguales, roundi(iguales * Economia.BONO_VECINA * 100.0)]
 	if actual != null:
-		_titulo.text = "%s · %s/min (%d%%)" % [
-			actual.nombre, _formatear(Economia.por_minuto(actual, pieza)),
-			roundi(Economia.eficiencia(actual, pieza) * 100.0),
+		_titulo.text = "%s · %s/min (%d%%)%s" % [
+			actual.nombre, _formatear(economia.por_minuto_en(coord, actual, tablero)),
+			roundi(Economia.eficiencia(actual, pieza) * 100.0), bonus,
 		]
 		_rejilla.visible = false
 		_quitar.visible = true
 	else:
-		_titulo.text = "%s: %s" % [pieza.nombre, _describir_bordes(pieza)]
+		_titulo.text = "%s: %s%s" % [pieza.nombre, _describir_bordes(pieza), bonus]
 		_rejilla.visible = true
 		_quitar.visible = false
 		for construccion in catalogo:

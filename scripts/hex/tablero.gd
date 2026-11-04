@@ -75,6 +75,15 @@ func evaluar(coord: Vector2i, pieza: PiezaDatos, giro: int) -> Dictionary:
 	return {"vecinos": vecinos, "coinciden": coinciden}
 
 
+## Cuántas piezas vecinas son del mismo tipo (mismo id) que `pieza` si esta se pusiera en `coord`.
+func vecinas_iguales(coord: Vector2i, pieza: PiezaDatos) -> int:
+	var iguales: int = 0
+	for vecino in Hex.vecinos(coord):
+		if _celdas.has(vecino) and _celdas[vecino]["pieza"].id == pieza.id:
+			iguales += 1
+	return iguales
+
+
 ## Encaje perfecto: toca al menos una pieza y todos los bordes compartidos coinciden.
 func encaja_perfecto(coord: Vector2i, pieza: PiezaDatos, giro: int) -> bool:
 	var resultado := evaluar(coord, pieza, giro)

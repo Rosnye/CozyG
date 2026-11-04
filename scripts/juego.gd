@@ -341,6 +341,9 @@ func _actualizar_interfaz() -> void:
 		var resultado := _tablero.evaluar(_pendiente, _pieza_actual, _giro)
 		var perfecto: bool = _tablero.encaja_perfecto(_pendiente, _pieza_actual, _giro)
 		_encaje.text = "Encaja %d de %d" % [resultado["coinciden"], resultado["vecinos"]]
+		var iguales: int = _tablero.vecinas_iguales(_pendiente, _pieza_actual)
+		if iguales > 0:
+			_encaje.text += " · +%d%% producción" % roundi(iguales * Economia.BONO_VECINA * 100.0)
 		_vista.mostrar_pendiente(_pendiente, _pieza_actual, _giro, perfecto)
 	else:
 		_encaje.text = ""

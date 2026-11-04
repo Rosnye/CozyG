@@ -4,6 +4,8 @@ extends RefCounted
 
 ## Parte del costo que se devuelve al quitar una construcción.
 const DEVOLUCION: float = 0.5
+## Bonus de producción por cada pieza vecina del mismo tipo (0.05 = +5 %).
+const BONO_VECINA: float = 0.05
 
 ## id de recurso (StringName) -> cantidad (float, para acumular fracciones)
 var recursos: Dictionary = {}
@@ -34,6 +36,19 @@ static func eficiencia(construccion: ConstruccionDatos, pieza: PiezaDatos) -> fl
 
 static func por_minuto(construccion: ConstruccionDatos, pieza: PiezaDatos) -> float:
 	return construccion.por_minuto * eficiencia(construccion, pieza)
+
+
+## Multiplicador por vecinas iguales: cada una suma `BONO_VECINA` (1.0 = sin bonus).
+static func multiplicador(vecinas_iguales: int) -> float:
+	return 1.0 + BONO_VECINA * float(vecinas_iguales)
+
+
+## Producción real por minuto de una construcción en `coord`, con el bonus por vecinas iguales.
+func por_minuto_en(coord: Vector2i, construccion: ConstruccionDatos, tablero: Tablero) -> float:
+	var pieza: PiezaDatos = tablero.pieza_en(coord)
+	if pieza == null:
+		return 0.0
+	return por_minuto(construccion, pieza) * multiplicador(tablero.vecinas_iguales(coord, pieza))
 
 
 func puede_pagar(costo: Dictionary) -> bool:
@@ -75,10 +90,7 @@ func quitar(coord: Vector2i) -> bool:
 func avanzar(delta: float, tablero: Tablero) -> void:
 	for coord: Vector2i in construcciones:
 		var construccion: ConstruccionDatos = construcciones[coord]
-		var pieza: PiezaDatos = tablero.pieza_en(coord)
-		if pieza == null:
-			continue
-		var ganado: float = por_minuto(construccion, pieza) / 60.0 * delta
+		var ganado: float = por_minuto_en(coord, construccion, tablero) / 60.0 * delta
 		recursos[construccion.produce] = float(recursos.get(construccion.produce, 0.0)) + ganado
 
 
