@@ -21,6 +21,8 @@ func _ready() -> void:
 	add_child(caja)
 	_titulo = Label.new()
 	_titulo.theme_type_variation = &"EtiquetaPequena"
+	# Sin ajuste de renglón, un título largo ensancharía el panel hasta ocupar la pantalla.
+	_titulo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	caja.add_child(_titulo)
 	_rejilla = GridContainer.new()
 	_rejilla.columns = 2
@@ -30,11 +32,13 @@ func _ready() -> void:
 	_quitar = Button.new()
 	_quitar.theme_type_variation = &"BotonPequeno"
 	_quitar.text = "Quitar (devuelve la mitad)"
+	_quitar.custom_minimum_size = Vector2(0, 72)
 	_quitar.pressed.connect(func() -> void: quitar_pedido.emit())
 	caja.add_child(_quitar)
 	var cerrar := Button.new()
 	cerrar.theme_type_variation = &"BotonPequeno"
 	cerrar.text = "Cerrar"
+	cerrar.custom_minimum_size = Vector2(0, 72)
 	cerrar.pressed.connect(func() -> void: cerrado.emit())
 	caja.add_child(cerrar)
 	visible = false
@@ -51,7 +55,11 @@ func mostrar(coord: Vector2i, pieza: PiezaDatos, actual: ConstruccionDatos, cata
 		hijo.queue_free()
 	_botones.clear()
 	var iguales: int = tablero.vecinas_iguales(coord, pieza)
-	var bonus: String = "" if iguales == 0 else " · %d vecinas iguales (+%d%%)" % [iguales, roundi(iguales * Economia.BONO_VECINA * 100.0)]
+	# El bonus va en su propia línea para que el panel no se ensanche con textos largos.
+	var bonus: String = ""
+	if iguales > 0:
+		var cuantas: String = "1 vecina igual" if iguales == 1 else "%d vecinas iguales" % iguales
+		bonus = "\n%s: +%d%%" % [cuantas, roundi(iguales * Economia.BONO_VECINA * 100.0)]
 	if actual != null:
 		_titulo.text = "%s · %s/min (%d%%)%s" % [
 			actual.nombre, _formatear(economia.por_minuto_en(coord, actual, tablero)),
@@ -60,18 +68,31 @@ func mostrar(coord: Vector2i, pieza: PiezaDatos, actual: ConstruccionDatos, cata
 		_rejilla.visible = false
 		_quitar.visible = true
 	else:
-		_titulo.text = "%s: %s%s" % [pieza.nombre, _describir_bordes(pieza), bonus]
+		_titulo.text = "%s (%s)%s" % [pieza.nombre, _describir_bordes(pieza), bonus]
 		_rejilla.visible = true
+		_rejilla.columns = _columnas()
 		_quitar.visible = false
 		for construccion in catalogo:
 			var boton := Button.new()
 			boton.theme_type_variation = &"BotonPequeno"
 			boton.text = _texto_boton(construccion, pieza)
+			boton.custom_minimum_size = Vector2(0, 72)
 			boton.pressed.connect(func() -> void: construir_pedido.emit(construccion))
 			_rejilla.add_child(boton)
 			_botones.append({"boton": boton, "construccion": construccion})
 	visible = true
 	refrescar(economia, tablero)
+
+
+## Tres columnas en pantallas anchas y bajitas (móvil en horizontal, para no tapar el mapa),
+## dos en cuanto caben (móvil en vertical normal, tableta, escritorio) y una en las muy estrechas.
+func _columnas() -> int:
+	var tamano: Vector2 = get_viewport_rect().size
+	if tamano.x >= 760.0 and tamano.y < 620.0:
+		return 3
+	if tamano.x >= 540.0:
+		return 2
+	return 1
 
 
 func ocultar() -> void:

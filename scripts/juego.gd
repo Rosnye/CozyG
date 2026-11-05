@@ -52,11 +52,11 @@ var _azar := RandomNumberGenerator.new()
 @onready var _atmosfera: Atmosfera = $Atmosfera
 @onready var _aviso: Label = $Interfaz/Aviso
 @onready var _hud_recursos: RecursosHud = $Interfaz/Recursos
-@onready var _panel: PanelConstruccion = $Interfaz/PanelConstruccion
+@onready var _panel: PanelConstruccion = $Interfaz/Pie/Margen/PanelConstruccion
 @onready var _panel_tutorial: PanelTutorial = $Interfaz/PanelTutorial
 @onready var _boton_pausa: Button = $Interfaz/BotonPausa
 @onready var _camara: CamaraControl = $Camara
-@onready var _barra: PanelContainer = $Interfaz/Barra
+@onready var _barra: PanelContainer = $Interfaz/Pie/Barra
 @onready var _muestra: PiezaPreview = %Muestra
 @onready var _nombre: Label = %Nombre
 @onready var _contador: Label = %Contador
@@ -71,6 +71,7 @@ var _azar := RandomNumberGenerator.new()
 
 
 func _ready() -> void:
+	Pantalla.vigilar(get_window())
 	Preferencias.iniciar()
 	_sonido_encaje.bus = Preferencias.BUS_EFECTOS
 	_sonido_colocar.bus = Preferencias.BUS_EFECTOS

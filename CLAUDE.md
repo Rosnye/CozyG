@@ -68,10 +68,13 @@ Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --im
 - Menú, pausa y ajustes: `scenes/menu.tscn` es la escena principal; la pausa vive en `juego.tscn` (Esc o botón II). `Preferencias` guarda los volúmenes en `user://ajustes.cfg` y crea los buses `Musica` y `Efectos`.
 - Tutorial: `Tutorial` (lógica pura, pasos que solo avanzan) guía una partida nueva: sugiere empezar con un aserradero, garantiza una pieza de bosque al inicio, señala huecos, botones y la pieza con guías que pulsan, y se puede saltar en cualquier momento. `PanelTutorial` solo muestra el texto; `juego.gd` le avisa de lo que hace el jugador (`hueco_elegido`, `girado`, `pieza_colocada`, `pieza_seleccionada`, `construido`). Se guarda con la partida. La preferencia "Mostrar el tutorial en partidas nuevas" está en Ajustes (`Preferencias.mostrar_tutorial`). Los textos están en `Tutorial.TEXTOS` (pendiente de traducir en la Etapa 6).
 - Iconos de los recursos: low-poly en `art/recursos/` (campo `icono` de `RecursoDatos`), generados por el mismo script que el resto del arte.
+- Móvil (Etapa 6, en curso): `Pantalla` amplía la interfaz (`content_scale_factor`) en pantallas táctiles pequeñas para que un botón de 72 unidades mida 48 px CSS, y se reajusta al girar. `BarraInferior` apila datos y botones en pantallas estrechas; el pie de pantalla (`Interfaz/Pie`) coloca el panel de construcción encima de la barra; `PanelTutorial` y `PanelConstruccion` adaptan ancho y columnas. `CamaraControl` usa un ancla para el arrastre y el pellizco (no acumula errores). Cómo probar en el móvil: `docs/probar-en-movil.md` (`herramientas/servir_https.py`). Al probar la escena completa en headless, la ventana mide 64×64 y se declara táctil: hay que fijar `content_scale_factor = 1` y marcar `pantalla_vigilada` en la ventana (ver los scripts de humo).
 - Teclas: R gira, Enter/Espacio confirma, Esc pausa.
 - Los colores del tablero (huecos, contornos del fantasma) son `@export` de `TableroVista`; los de interfaz van en el tema.
 
 ## Decisiones de diseño
+
+- **Uso principal en móvil: vertical.** La interfaz móvil se diseña y se prueba en vertical (la barra inferior se apila, el panel de construcción usa 2 columnas). El horizontal sigue funcionando (el panel pasa a 3 columnas) pero no es el objetivo. En escritorio se mantiene la disposición horizontal de siempre.
 
 - **Estilo visual por ahora: low-poly generado por código.** Se probó isométrico 2.5D, pintado 2D y low-poly (`art/pruebas_estilo/`); el isométrico gustó, pero de momento se usa low-poly porque se puede generar sin artista. Es provisional: el arte definitivo se resolverá más adelante y bastará con cambiar el campo `arte` de cada `.tres`.
 - **Cómo se genera el arte:** `python herramientas/generar_arte_lowpoly.py` lee los datos y escribe un SVG por pieza, construcción, criatura y recurso en `art/piezas`, `art/construcciones`, `art/criaturas` y `art/recursos`, y los enlaza en el campo `arte` (o `icono`) de cada `.tres` (solo si está vacío). Es determinista. Una pieza nueva solo necesita su `.tres` con `bordes`. Después hay que correr `godot --headless --path . --import`; las imágenes importan con mipmaps (los `.svg.import` llevan `mipmaps/generate=true`).
@@ -84,4 +87,6 @@ Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --im
 - [x] Etapa 1: prototipo gris (hexágonos, mazo, colocar, girar, cámara)
 - [x] Etapa 2: reglas de encaje, recompensa y guardado
 - [x] Etapa 3: criaturas, ciclo día/noche, lluvia y audio por capas
-- [~] Etapa 4: menú, pausa, ajustes, biomas nuevos, construcciones y recursos listos; prueba de estilos en `art/pruebas_estilo/`; faltan elegir el estilo y probar con 5 a 10 personas (`docs/guia-de-prueba.md`)
+- [x] Etapa 4: menú, pausa, ajustes, biomas nuevos, construcciones y recursos listos; prueba de estilos en `art/pruebas_estilo/`; falta probar con 5 a 10 personas (`docs/guia-de-prueba.md`)
+- [~] Etapa 5: arte low-poly provisional generado por código, tutorial e iconos listos
+- [~] Etapa 6: móvil en curso (escala de interfaz, barra adaptable, cámara táctil); faltan rendimiento, idiomas, accesibilidad y pago

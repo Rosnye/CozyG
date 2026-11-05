@@ -17,7 +17,6 @@ func _ready() -> void:
 	_texto = Label.new()
 	_texto.theme_type_variation = &"EtiquetaPequena"
 	_texto.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
-	_texto.custom_minimum_size = Vector2(560, 0)
 	caja.add_child(_texto)
 	var fila := HBoxContainer.new()
 	fila.add_theme_constant_override("separation", 12)
@@ -25,6 +24,7 @@ func _ready() -> void:
 	var saltar := Button.new()
 	saltar.theme_type_variation = &"BotonPequeno"
 	saltar.text = "Saltar tutorial"
+	saltar.custom_minimum_size = Vector2(0, 72)
 	saltar.pressed.connect(func() -> void: saltar_pedido.emit())
 	fila.add_child(saltar)
 	var espacio := Control.new()
@@ -32,9 +32,18 @@ func _ready() -> void:
 	fila.add_child(espacio)
 	_principal = Button.new()
 	_principal.theme_type_variation = &"BotonPequeno"
+	_principal.custom_minimum_size = Vector2(0, 72)
 	_principal.pressed.connect(func() -> void: siguiente_pedido.emit())
 	fila.add_child(_principal)
 	visible = false
+	get_tree().root.size_changed.connect(_ajustar_ancho)
+	_ajustar_ancho()
+
+
+## El texto ocupa hasta 560 unidades, o menos si la pantalla es estrecha (móvil en vertical).
+func _ajustar_ancho() -> void:
+	var disponible: float = get_viewport_rect().size.x - 64.0
+	_texto.custom_minimum_size = Vector2(clampf(disponible, 240.0, 560.0), 0)
 
 
 func mostrar(texto: String, con_boton: bool, texto_boton: String) -> void:
