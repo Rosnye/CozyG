@@ -74,6 +74,8 @@ Tras añadir un `class_name` nuevo, correr antes `godot --headless --path . --im
 
 ## Decisiones de diseño
 
+- **Uso principal en móvil: vertical.** La interfaz móvil se diseña y se prueba en vertical (la barra inferior se apila, el panel de construcción usa 2 columnas). El horizontal sigue funcionando (el panel pasa a 3 columnas) pero no es el objetivo. En escritorio se mantiene la disposición horizontal de siempre.
+
 - **Estilo visual por ahora: low-poly generado por código.** Se probó isométrico 2.5D, pintado 2D y low-poly (`art/pruebas_estilo/`); el isométrico gustó, pero de momento se usa low-poly porque se puede generar sin artista. Es provisional: el arte definitivo se resolverá más adelante y bastará con cambiar el campo `arte` de cada `.tres`.
 - **Cómo se genera el arte:** `python herramientas/generar_arte_lowpoly.py` lee los datos y escribe un SVG por pieza, construcción, criatura y recurso en `art/piezas`, `art/construcciones`, `art/criaturas` y `art/recursos`, y los enlaza en el campo `arte` (o `icono`) de cada `.tres` (solo si está vacío). Es determinista. Una pieza nueva solo necesita su `.tres` con `bordes`. Después hay que correr `godot --headless --path . --import`; las imágenes importan con mipmaps (los `.svg.import` llevan `mipmaps/generate=true`).
 - **Giro de las piezas con arte:** la imagen de una pieza tiene el borde 0 mirando al este; `DibujoPieza` la gira de 60° en 60° (`60° × giro`). Por eso los detalles de las piezas están pensados para verse bien girados (vista desde arriba).
