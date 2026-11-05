@@ -21,6 +21,8 @@ func _ready() -> void:
 	add_child(caja)
 	_titulo = Label.new()
 	_titulo.theme_type_variation = &"EtiquetaPequena"
+	# Sin ajuste de renglón, un título largo ensancharía el panel hasta ocupar la pantalla.
+	_titulo.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	caja.add_child(_titulo)
 	_rejilla = GridContainer.new()
 	_rejilla.columns = 2
@@ -53,7 +55,11 @@ func mostrar(coord: Vector2i, pieza: PiezaDatos, actual: ConstruccionDatos, cata
 		hijo.queue_free()
 	_botones.clear()
 	var iguales: int = tablero.vecinas_iguales(coord, pieza)
-	var bonus: String = "" if iguales == 0 else " · %d vecinas iguales (+%d%%)" % [iguales, roundi(iguales * Economia.BONO_VECINA * 100.0)]
+	# El bonus va en su propia línea para que el panel no se ensanche con textos largos.
+	var bonus: String = ""
+	if iguales > 0:
+		var cuantas: String = "1 vecina igual" if iguales == 1 else "%d vecinas iguales" % iguales
+		bonus = "\n%s: +%d%%" % [cuantas, roundi(iguales * Economia.BONO_VECINA * 100.0)]
 	if actual != null:
 		_titulo.text = "%s · %s/min (%d%%)%s" % [
 			actual.nombre, _formatear(economia.por_minuto_en(coord, actual, tablero)),
@@ -62,7 +68,7 @@ func mostrar(coord: Vector2i, pieza: PiezaDatos, actual: ConstruccionDatos, cata
 		_rejilla.visible = false
 		_quitar.visible = true
 	else:
-		_titulo.text = "%s: %s%s" % [pieza.nombre, _describir_bordes(pieza), bonus]
+		_titulo.text = "%s (%s)%s" % [pieza.nombre, _describir_bordes(pieza), bonus]
 		_rejilla.visible = true
 		_rejilla.columns = _columnas()
 		_quitar.visible = false
@@ -78,15 +84,15 @@ func mostrar(coord: Vector2i, pieza: PiezaDatos, actual: ConstruccionDatos, cata
 	refrescar(economia, tablero)
 
 
-## Una columna en pantallas estrechas (móvil en vertical), tres en las anchas y bajitas
-## (móvil en horizontal, para no tapar el mapa) y dos en el resto.
+## Tres columnas en pantallas anchas y bajitas (móvil en horizontal, para no tapar el mapa),
+## dos en cuanto caben (móvil en vertical normal, tableta, escritorio) y una en las muy estrechas.
 func _columnas() -> int:
 	var tamano: Vector2 = get_viewport_rect().size
-	if tamano.x < 760.0:
-		return 1
-	if tamano.y < 620.0:
+	if tamano.x >= 760.0 and tamano.y < 620.0:
 		return 3
-	return 2
+	if tamano.x >= 540.0:
+		return 2
+	return 1
 
 
 func ocultar() -> void:
