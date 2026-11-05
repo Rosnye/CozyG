@@ -11,6 +11,8 @@ const GANANCIA_DB: Dictionary = {
 const SILENCIO_DB: float = -80.0
 ## Rapidez con que las capas suben y bajan de volumen.
 const SUAVIZADO: float = 1.2
+## Cada cuántos segundos se recalculan la luz y los niveles de audio.
+const PERIODO_CALCULO: float = 0.1
 
 ## Color por fase del día (0 = amanecer ... 0.75 = medianoche).
 @export var gradiente_dia: Gradient
@@ -21,6 +23,8 @@ const SUAVIZADO: float = 1.2
 @export var lluvia: LluviaVista
 
 var _capas: Dictionary = {}
+var _niveles: Dictionary = {}
+var _acumulado: float = 1.0  # fuerza el primer cálculo
 
 
 func _ready() -> void:
@@ -36,10 +40,15 @@ func _ready() -> void:
 
 
 func actualizar(delta: float, ciclo: Ciclo, clima: Clima, conteo: Dictionary, piezas: int) -> void:
-	_aplicar_luz(ciclo, clima)
-	_aplicar_audio(delta, ciclo.luz(), clima.intensidad_lluvia, conteo, piezas)
-	if lluvia != null:
-		lluvia.intensidad = clima.intensidad_lluvia
+	# La luz y los niveles de audio cambian despacio: se recalculan 10 veces por segundo.
+	_acumulado += delta
+	if _acumulado >= PERIODO_CALCULO:
+		_acumulado = 0.0
+		_aplicar_luz(ciclo, clima)
+		_niveles = Ambiente.volumenes(ciclo.luz(), clima.intensidad_lluvia, conteo, piezas)
+		if lluvia != null:
+			lluvia.intensidad = clima.intensidad_lluvia
+	_suavizar_audio(delta)
 
 
 func _aplicar_luz(ciclo: Ciclo, clima: Clima) -> void:
@@ -54,13 +63,15 @@ func _aplicar_luz(ciclo: Ciclo, clima: Clima) -> void:
 		modulacion_fondo.color = color
 
 
-func _aplicar_audio(delta: float, luz: float, lluvia_nivel: float, conteo: Dictionary, piezas: int) -> void:
-	var niveles: Dictionary = Ambiente.volumenes(luz, lluvia_nivel, conteo, piezas)
+## Acerca poco a poco el volumen de cada capa a su objetivo. Las capas que no se oyen se pausan
+## para que el motor no gaste CPU (ni batería) mezclándolas.
+func _suavizar_audio(delta: float) -> void:
 	var paso: float = 1.0 - exp(-delta * SUAVIZADO)
 	for capa: StringName in _capas:
 		var reproductor: AudioStreamPlayer = _capas[capa]
-		var nivel: float = niveles.get(capa, 0.0)
+		var nivel: float = _niveles.get(capa, 0.0)
 		var objetivo: float = SILENCIO_DB
 		if nivel > 0.001:
 			objetivo = maxf(GANANCIA_DB[capa] + linear_to_db(nivel), SILENCIO_DB)
 		reproductor.volume_db = lerpf(reproductor.volume_db, objetivo, paso)
+		reproductor.stream_paused = objetivo <= SILENCIO_DB and reproductor.volume_db <= SILENCIO_DB + 2.0

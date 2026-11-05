@@ -207,3 +207,35 @@ func prueba_el_bonus_no_aplica_con_vecinas_de_otro_tipo() -> void:
 	var aserradero := _construccion(&"aserradero", &"madera", {B: 1.0}, {}, 60.0)
 	e.construir(Vector2i.ZERO, aserradero, t)
 	afirmar(absf(e.por_minuto_en(Vector2i.ZERO, aserradero, t) - 60.0) < 0.0001, "bosque y claro son tipos distintos")
+
+
+func prueba_la_produccion_se_actualiza_al_cambiar_el_tablero() -> void:
+	# Las tasas se guardan en caché: deben renovarse si cambian las vecinas, y al quitar.
+	var e := _economia(0)
+	var t := Tablero.new()
+	var bosque := _bosque()
+	t.colocar(Vector2i.ZERO, bosque)
+	var aserradero := _construccion(&"aserradero", &"madera", {B: 1.0}, {}, 60.0)  # 1 por segundo
+	e.construir(Vector2i.ZERO, aserradero, t)
+	e.avanzar(10.0, t)
+	afirmar_igual(e.cantidad(&"madera"), 10, "10 s sin vecinas = 10")
+	t.colocar(Vector2i(1, 0), bosque)
+	t.colocar(Vector2i(0, 1), bosque)
+	e.avanzar(10.0, t)
+	afirmar_igual(e.cantidad(&"madera"), 21, "con 2 vecinas iguales (+10 %) otros 10 s = +11 (10 + 11)")
+	e.quitar(Vector2i.ZERO)
+	var antes: int = e.cantidad(&"madera")
+	e.avanzar(10.0, t)
+	afirmar(e.cantidad(&"madera") <= antes + 2, "tras quitar la construcción ya no produce (era %d, ahora %d)" % [antes, e.cantidad(&"madera")])
+
+
+func prueba_invalidar_recalcula_cambios_externos() -> void:
+	var e := _economia(0)
+	var t := Tablero.new()
+	t.colocar(Vector2i.ZERO, _bosque())
+	var aserradero := _construccion(&"aserradero", &"madera", {B: 1.0}, {}, 60.0)
+	e.avanzar(5.0, t)  # sin construcciones: cachea tasa vacía
+	e.construcciones[Vector2i.ZERO] = aserradero  # cambio por fuera de construir()
+	e.invalidar()
+	e.avanzar(5.0, t)
+	afirmar_igual(e.cantidad(&"madera"), 5, "tras invalidar, la construcción añadida produce")

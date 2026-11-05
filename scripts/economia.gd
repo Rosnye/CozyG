@@ -12,11 +12,19 @@ var recursos: Dictionary = {}
 ## Vector2i -> ConstruccionDatos
 var construcciones: Dictionary = {}
 
+# Producción total por segundo de cada recurso. Se recalcula solo cuando cambia algo
+# (en vez de rehacer en cada fotograma los bonus de todas las construcciones).
+var _tasas: Dictionary = {}
+var _sucia: bool = true
+var _ultimo_tablero: Tablero
+var _ultima_version: int = -1
+
 
 ## Empieza con las cantidades iniciales de cada recurso.
 func iniciar(datos: Array[RecursoDatos]) -> void:
 	recursos.clear()
 	construcciones.clear()
+	_sucia = true
 	for recurso in datos:
 		recursos[recurso.id] = float(recurso.inicial)
 
@@ -72,6 +80,7 @@ func construir(coord: Vector2i, construccion: ConstruccionDatos, tablero: Tabler
 	for id: StringName in construccion.costo:
 		recursos[id] = float(recursos.get(id, 0.0)) - float(construccion.costo[id])
 	construcciones[coord] = construccion
+	_sucia = true
 	return true
 
 
@@ -83,15 +92,33 @@ func quitar(coord: Vector2i) -> bool:
 	for id: StringName in construccion.costo:
 		recursos[id] = float(recursos.get(id, 0.0)) + floorf(float(construccion.costo[id]) * DEVOLUCION)
 	construcciones.erase(coord)
+	_sucia = true
 	return true
+
+
+## Avisa de que `construcciones` se tocó por fuera de `construir` y `quitar`.
+func invalidar() -> void:
+	_sucia = true
 
 
 ## Produce lo que toca en `delta` segundos.
 func avanzar(delta: float, tablero: Tablero) -> void:
+	if _sucia or tablero != _ultimo_tablero or tablero.version != _ultima_version:
+		_recalcular_tasas(tablero)
+	for id: StringName in _tasas:
+		recursos[id] = float(recursos.get(id, 0.0)) + float(_tasas[id]) * delta
+
+
+func _recalcular_tasas(tablero: Tablero) -> void:
+	_tasas.clear()
 	for coord: Vector2i in construcciones:
 		var construccion: ConstruccionDatos = construcciones[coord]
-		var ganado: float = por_minuto_en(coord, construccion, tablero) / 60.0 * delta
-		recursos[construccion.produce] = float(recursos.get(construccion.produce, 0.0)) + ganado
+		var por_segundo: float = por_minuto_en(coord, construccion, tablero) / 60.0
+		if por_segundo > 0.0:
+			_tasas[construccion.produce] = float(_tasas.get(construccion.produce, 0.0)) + por_segundo
+	_sucia = false
+	_ultimo_tablero = tablero
+	_ultima_version = tablero.version
 
 
 func a_diccionario() -> Dictionary:
@@ -111,6 +138,7 @@ func desde_diccionario(datos: Dictionary, catalogo: Dictionary, tablero: Tablero
 		for id in datos["recursos"]:
 			recursos[StringName(str(id))] = float(datos["recursos"][id])
 	construcciones.clear()
+	_sucia = true
 	if not datos.get("construcciones") is Array:
 		return
 	for dato in datos["construcciones"]:
