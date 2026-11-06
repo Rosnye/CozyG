@@ -41,6 +41,17 @@ max_value = 1.0
 step = 0.05
 value = 0.8
 
+[node name="EtiquetaIdioma" type="Label" parent="Caja"]
+layout_mode = 2
+theme_type_variation = &"EtiquetaPequena"
+text = "Idioma"
+
+[node name="Idioma" type="OptionButton" parent="Caja"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 72)
+layout_mode = 2
+theme_type_variation = &"BotonPequeno"
+
 [node name="Tutorial" type="CheckButton" parent="Caja"]
 unique_name_in_owner = true
 layout_mode = 2

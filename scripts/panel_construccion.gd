@@ -10,6 +10,7 @@ signal cerrado
 var _titulo: Label
 var _rejilla: GridContainer
 var _quitar: Button
+var _cerrar: Button
 var _botones: Array[Dictionary] = []  # { "boton": Button, "construccion": ConstruccionDatos }
 var _coord: Vector2i = Vector2i.ZERO
 var _nombres_recursos: Dictionary = {}
@@ -31,17 +32,23 @@ func _ready() -> void:
 	caja.add_child(_rejilla)
 	_quitar = Button.new()
 	_quitar.theme_type_variation = &"BotonPequeno"
-	_quitar.text = "Quitar (devuelve la mitad)"
+	_quitar.text = tr("Quitar (devuelve la mitad)")
 	_quitar.custom_minimum_size = Vector2(0, 72)
 	_quitar.pressed.connect(func() -> void: quitar_pedido.emit())
 	caja.add_child(_quitar)
-	var cerrar := Button.new()
-	cerrar.theme_type_variation = &"BotonPequeno"
-	cerrar.text = "Cerrar"
-	cerrar.custom_minimum_size = Vector2(0, 72)
-	cerrar.pressed.connect(func() -> void: cerrado.emit())
-	caja.add_child(cerrar)
+	_cerrar = Button.new()
+	_cerrar.theme_type_variation = &"BotonPequeno"
+	_cerrar.text = tr("Cerrar")
+	_cerrar.custom_minimum_size = Vector2(0, 72)
+	_cerrar.pressed.connect(func() -> void: cerrado.emit())
+	caja.add_child(_cerrar)
 	visible = false
+
+
+func _notification(motivo: int) -> void:
+	if motivo == NOTIFICATION_TRANSLATION_CHANGED and _quitar != null:
+		_quitar.text = tr("Quitar (devuelve la mitad)")
+		_cerrar.text = tr("Cerrar")
 
 
 ## `nombres_recursos` mapea id de recurso -> nombre para mostrar los costos.
@@ -58,17 +65,17 @@ func mostrar(coord: Vector2i, pieza: PiezaDatos, actual: ConstruccionDatos, cata
 	# El bonus va en su propia línea para que el panel no se ensanche con textos largos.
 	var bonus: String = ""
 	if iguales > 0:
-		var cuantas: String = "1 vecina igual" if iguales == 1 else "%d vecinas iguales" % iguales
+		var cuantas: String = tr("1 vecina igual") if iguales == 1 else tr("%d vecinas iguales") % iguales
 		bonus = "\n%s: +%d%%" % [cuantas, roundi(iguales * Economia.BONO_VECINA * 100.0)]
 	if actual != null:
 		_titulo.text = "%s · %s/min (%d%%)%s" % [
-			actual.nombre, _formatear(economia.por_minuto_en(coord, actual, tablero)),
+			actual.nombre_visible(), _formatear(economia.por_minuto_en(coord, actual, tablero)),
 			roundi(Economia.eficiencia(actual, pieza) * 100.0), bonus,
 		]
 		_rejilla.visible = false
 		_quitar.visible = true
 	else:
-		_titulo.text = "%s (%s)%s" % [pieza.nombre, _describir_bordes(pieza), bonus]
+		_titulo.text = "%s (%s)%s" % [pieza.nombre_visible(), _describir_bordes(pieza), bonus]
 		_rejilla.visible = true
 		_rejilla.columns = _columnas()
 		_quitar.visible = false
@@ -117,17 +124,17 @@ func _texto_boton(construccion: ConstruccionDatos, pieza: PiezaDatos) -> String:
 	var rendimiento: float = Economia.eficiencia(construccion, pieza)
 	var linea: String
 	if rendimiento <= 0.0:
-		linea = "no rinde aquí"
+		linea = tr("no rinde aquí")
 	else:
 		linea = "%s · %d%%" % [_describir_costo(construccion.costo), roundi(rendimiento * 100.0)]
-	return "%s\n%s" % [construccion.nombre, linea]
+	return "%s\n%s" % [construccion.nombre_visible(), linea]
 
 
 func _describir_costo(costo: Dictionary) -> String:
 	var partes: PackedStringArray = []
 	for id: StringName in costo:
-		partes.append("%d %s" % [int(costo[id]), String(_nombres_recursos.get(id, id)).to_lower()])
-	return ", ".join(partes) if not partes.is_empty() else "gratis"
+		partes.append("%d %s" % [int(costo[id]), tr(String(_nombres_recursos.get(id, id))).to_lower()])
+	return ", ".join(partes) if not partes.is_empty() else tr("gratis")
 
 
 func _describir_bordes(pieza: PiezaDatos) -> String:
@@ -137,7 +144,7 @@ func _describir_bordes(pieza: PiezaDatos) -> String:
 		cuenta[terreno] = int(cuenta.get(terreno, 0)) + 1
 	var partes: PackedStringArray = []
 	for terreno: StringName in cuenta:
-		partes.append("%s ×%d" % [terreno, cuenta[terreno]])
+		partes.append("%s ×%d" % [tr(String(terreno)), cuenta[terreno]])
 	return ", ".join(partes)
 
 

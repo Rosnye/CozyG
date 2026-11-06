@@ -6,6 +6,8 @@ const CARPETA: String = "res://tests"
 
 
 func _init() -> void:
+	# Los textos de las pruebas están en español: se fija el idioma, no el del sistema.
+	TranslationServer.set_locale("es")
 	var total: int = 0
 	var fallidas: int = 0
 	var archivos: PackedStringArray = DirAccess.get_files_at(CARPETA)

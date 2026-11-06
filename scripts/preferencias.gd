@@ -11,6 +11,8 @@ static var volumen_musica: float = 0.8
 static var volumen_efectos: float = 0.8
 ## Si las partidas nuevas empiezan con el mini tutorial.
 static var mostrar_tutorial: bool = true
+## "auto" (sigue al sistema), "es" o "en".
+static var idioma: String = Idioma.AUTOMATICO
 
 static var _iniciado: bool = false
 
@@ -23,6 +25,7 @@ static func iniciar() -> void:
 	_asegurar_bus(BUS_EFECTOS)
 	cargar()
 	aplicar()
+	Idioma.aplicar(idioma)
 
 
 static func fijar_musica(valor: float) -> void:
@@ -33,6 +36,12 @@ static func fijar_musica(valor: float) -> void:
 static func fijar_efectos(valor: float) -> void:
 	volumen_efectos = clampf(valor, 0.0, 1.0)
 	aplicar()
+
+
+## Cambia el idioma ahora y lo recuerda. Los textos con traducción se actualizan solos.
+static func fijar_idioma(preferencia: String) -> void:
+	idioma = preferencia
+	Idioma.aplicar(idioma)
 
 
 ## Volumen lineal 0..1 a decibelios (0 es silencio total).
@@ -52,6 +61,7 @@ static func guardar() -> void:
 	archivo.set_value("audio", "musica", volumen_musica)
 	archivo.set_value("audio", "efectos", volumen_efectos)
 	archivo.set_value("juego", "mostrar_tutorial", mostrar_tutorial)
+	archivo.set_value("juego", "idioma", idioma)
 	archivo.save(RUTA)
 
 
@@ -62,6 +72,7 @@ static func cargar() -> void:
 	volumen_musica = clampf(float(archivo.get_value("audio", "musica", volumen_musica)), 0.0, 1.0)
 	volumen_efectos = clampf(float(archivo.get_value("audio", "efectos", volumen_efectos)), 0.0, 1.0)
 	mostrar_tutorial = bool(archivo.get_value("juego", "mostrar_tutorial", mostrar_tutorial))
+	idioma = str(archivo.get_value("juego", "idioma", idioma))
 
 
 static func _asegurar_bus(nombre: StringName) -> void:

@@ -51,7 +51,7 @@ func terminado() -> bool:
 
 
 func texto() -> String:
-	return TEXTOS.get(paso, "")
+	return tr(TEXTOS.get(paso, ""))
 
 
 func tiene_boton() -> bool:
@@ -59,7 +59,7 @@ func tiene_boton() -> bool:
 
 
 func texto_boton() -> String:
-	return "¡Entendido!" if paso == Paso.FINAL else "Empezar"
+	return tr("¡Entendido!") if paso == Paso.FINAL else tr("Empezar")
 
 
 ## El botón principal: pasa de la bienvenida a la acción, o cierra el tutorial.

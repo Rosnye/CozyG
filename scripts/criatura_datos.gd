@@ -16,3 +16,8 @@ extends Resource
 ## Radio aproximado en unidades de mundo.
 @export var tamano: float = 14.0
 @export var arte: Texture2D
+
+
+## Nombre en el idioma actual. El campo `nombre` está en español y es la clave de traducción.
+func nombre_visible() -> String:
+	return tr(nombre)

@@ -8,6 +8,7 @@ signal saltar_pedido
 
 var _texto: Label
 var _principal: Button
+var _saltar: Button
 
 
 func _ready() -> void:
@@ -21,12 +22,12 @@ func _ready() -> void:
 	var fila := HBoxContainer.new()
 	fila.add_theme_constant_override("separation", 12)
 	caja.add_child(fila)
-	var saltar := Button.new()
-	saltar.theme_type_variation = &"BotonPequeno"
-	saltar.text = "Saltar tutorial"
-	saltar.custom_minimum_size = Vector2(0, 72)
-	saltar.pressed.connect(func() -> void: saltar_pedido.emit())
-	fila.add_child(saltar)
+	_saltar = Button.new()
+	_saltar.theme_type_variation = &"BotonPequeno"
+	_saltar.text = tr("Saltar tutorial")
+	_saltar.custom_minimum_size = Vector2(0, 72)
+	_saltar.pressed.connect(func() -> void: saltar_pedido.emit())
+	fila.add_child(_saltar)
 	var espacio := Control.new()
 	espacio.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	fila.add_child(espacio)
@@ -38,6 +39,11 @@ func _ready() -> void:
 	visible = false
 	get_tree().root.size_changed.connect(_ajustar_ancho)
 	_ajustar_ancho()
+
+
+func _notification(motivo: int) -> void:
+	if motivo == NOTIFICATION_TRANSLATION_CHANGED and _saltar != null:
+		_saltar.text = tr("Saltar tutorial")
 
 
 ## El texto ocupa hasta 560 unidades, o menos si la pantalla es estrecha (móvil en vertical).

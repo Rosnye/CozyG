@@ -15,3 +15,8 @@ extends Resource
 ## Recurso -> cantidad que cuesta construirla.
 @export var costo: Dictionary = {}
 @export var arte: Texture2D
+
+
+## Nombre en el idioma actual. El campo `nombre` está en español y es la clave de traducción.
+func nombre_visible() -> String:
+	return tr(nombre)
