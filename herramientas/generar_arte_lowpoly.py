@@ -5,7 +5,9 @@ Uso, desde la raíz del proyecto:
 
 Lee los datos (`data/piezas`, `data/construcciones`, `data/criaturas`, `data/terrenos.tres`),
 escribe un SVG por elemento en `art/piezas`, `art/construcciones`, `art/criaturas` y `art/recursos`,
-y enlaza cada uno en su `.tres` (campo `arte`, o `icono` en los recursos) si aún no lo tiene. Es determinista: la misma pieza
+y enlaza cada uno en su `.tres` (campo `arte`, o `icono` en los recursos) si aún no lo tiene.
+También escribe las marcas de terreno de la ayuda para daltonismo (`art/marcas`) y las enlaza
+en el campo `marcas` de `data/terrenos.tres`. Es determinista: la misma pieza
 sale siempre igual. Cuando llegue arte definitivo basta con cambiar el campo `arte`.
 """
 import glob
@@ -362,6 +364,58 @@ def icono_svg(datos):
     return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">\n' + "\n".join(p) + "\n</svg>\n"
 
 
+# --- Marcas de terreno (ayuda para daltonismo) ------------------------------
+# Una forma oscura y sencilla sobre un disco claro: se distinguen por la forma, no por el color,
+# y se leen igual en gris. Tienen que ser distintas entre sí aunque se vean pequeñas.
+
+TINTA = "#2a211a"
+PAPEL = "#f7f1e3"
+
+
+def trazo(puntos, ancho=5.5):
+    return (f'<polyline points="{pts(puntos)}" fill="none" stroke="{TINTA}" stroke-width="{ancho}" '
+            'stroke-linecap="round" stroke-linejoin="round"/>')
+
+
+def onda(y):
+    return trazo([(14 + i * 4, y + 5 * math.sin(i * math.pi / 3)) for i in range(10)])
+
+
+def marca_svg(id_):
+    p = [f'<circle cx="32" cy="32" r="28" fill="{PAPEL}" stroke="{TINTA}" stroke-width="3"/>']
+    if id_ == "agua":
+        p += [onda(24), onda(40)]
+    elif id_ == "bosque":
+        p += [poligono([(32, 12), (48, 44), (16, 44)], TINTA), poligono([(29, 44), (35, 44), (35, 52), (29, 52)], TINTA)]
+    elif id_ == "prado":
+        p += [trazo([(20, 46), (16, 26)]), trazo([(32, 48), (32, 18)]), trazo([(44, 46), (48, 26)])]
+    elif id_ == "tierra":
+        p += [trazo([(16, y), (48, y)]) for y in (22, 32, 42)]
+    elif id_ == "piedra":
+        p += [poligono([(18, 18), (46, 18), (46, 46), (18, 46)], TINTA)]
+    elif id_ == "mineral":
+        p += [poligono([(32, 12), (50, 32), (32, 52), (14, 32)], TINTA),
+              poligono([(32, 22), (40, 32), (32, 42), (24, 32)], PAPEL)]
+    else:
+        p += [f'<circle cx="32" cy="32" r="9" fill="{TINTA}"/>']
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 64 64">\n' + "\n".join(p) + "\n</svg>\n"
+
+
+def enlazar_marcas(ids):
+    """Reescribe los `ext_resource` de las marcas y el campo `marcas` de terrenos.tres."""
+    ruta = os.path.join(RAIZ_PROYECTO, "data", "terrenos.tres")
+    texto = open(ruta, encoding="utf-8").read()
+    texto = re.sub(r'\[ext_resource type="Texture2D" path="res://art/marcas/[^\n]*\n', "", texto)
+    texto = re.sub(r"\nmarcas = \{[^}]*\}\n?", "\n", texto)
+    ext = "".join(f'[ext_resource type="Texture2D" path="res://art/marcas/{i}.svg" id="marca_{i}"]\n' for i in ids)
+    texto = re.sub(r'(\[ext_resource type="Script"[^\n]*\n)', lambda m: m.group(1) + ext, texto, count=1)
+    texto = re.sub(r"load_steps=\d+", f"load_steps={len(ids) + 2}", texto, count=1)
+    entradas = ",\n".join(f'&"{i}": ExtResource("marca_{i}")' for i in ids)
+    texto = texto.rstrip("\n") + "\nmarcas = {\n" + entradas + "\n}\n"
+    with open(ruta, "w", encoding="utf-8", newline="\n") as f:
+        f.write(texto)
+
+
 # --- Principal --------------------------------------------------------------
 
 def escribir(ruta, contenido):
@@ -385,6 +439,11 @@ def main():
             escribir(ruta_svg, generar(datos))
             nuevo = enlazar_arte(datos, f"res://art/{carpeta_arte}/{datos['id']}.svg", campo)
             print(("enlazado " if nuevo else "regenerado ") + f"{carpeta_arte}/{datos['id']}")
+    ids_terreno = sorted(terrenos)
+    for id_ in ids_terreno:
+        escribir(os.path.join(RAIZ_PROYECTO, "art", "marcas", id_ + ".svg"), marca_svg(id_))
+        print(f"regenerado marcas/{id_}")
+    enlazar_marcas(ids_terreno)
 
 
 if __name__ == "__main__":

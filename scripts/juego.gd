@@ -70,7 +70,7 @@ var _azar := RandomNumberGenerator.new()
 @onready var _sonido_colocar: AudioStreamPlayer = $SonidoColocar
 @onready var _pausa: CanvasLayer = $Pausa
 @onready var _menu_pausa: Control = %MenuPausa
-@onready var _ajustes: Control = %AjustesPausa
+@onready var _ajustes: AjustesPanel = %AjustesPausa
 
 
 func _ready() -> void:
@@ -114,6 +114,7 @@ func _ready() -> void:
 	%PausaAjustes.pressed.connect(_abrir_ajustes_pausa)
 	%PausaMenu.pressed.connect(_volver_al_menu)
 	_ajustes.cerrado.connect(_cerrar_ajustes_pausa)
+	_ajustes.ayuda_color_cambiada.connect(_al_cambiar_ayuda_color)
 	_pausa.visible = false
 	_actualizar_interfaz()
 	_actualizar_tutorial()
@@ -359,6 +360,12 @@ func _reanudar() -> void:
 func _abrir_ajustes_pausa() -> void:
 	_menu_pausa.visible = false
 	_ajustes.visible = true
+
+
+## Las marcas de terreno y los colores del fantasma cambian: se redibuja lo que los usa.
+func _al_cambiar_ayuda_color() -> void:
+	_vista.refrescar()
+	_muestra.queue_redraw()
 
 
 func _cerrar_ajustes_pausa() -> void:

@@ -1,6 +1,12 @@
-[gd_resource type="Resource" script_class="TerrenosDatos" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="TerrenosDatos" load_steps=8 format=3]
 
 [ext_resource type="Script" path="res://scripts/terrenos_datos.gd" id="1"]
+[ext_resource type="Texture2D" path="res://art/marcas/agua.svg" id="marca_agua"]
+[ext_resource type="Texture2D" path="res://art/marcas/bosque.svg" id="marca_bosque"]
+[ext_resource type="Texture2D" path="res://art/marcas/mineral.svg" id="marca_mineral"]
+[ext_resource type="Texture2D" path="res://art/marcas/piedra.svg" id="marca_piedra"]
+[ext_resource type="Texture2D" path="res://art/marcas/prado.svg" id="marca_prado"]
+[ext_resource type="Texture2D" path="res://art/marcas/tierra.svg" id="marca_tierra"]
 
 [resource]
 script = ExtResource("1")
@@ -11,4 +17,12 @@ colores = {
 &"piedra": Color(0.55, 0.55, 0.58, 1),
 &"prado": Color(0.74, 0.82, 0.45, 1),
 &"tierra": Color(0.6, 0.43, 0.28, 1)
+}
+marcas = {
+&"agua": ExtResource("marca_agua"),
+&"bosque": ExtResource("marca_bosque"),
+&"mineral": ExtResource("marca_mineral"),
+&"piedra": ExtResource("marca_piedra"),
+&"prado": ExtResource("marca_prado"),
+&"tierra": ExtResource("marca_tierra")
 }

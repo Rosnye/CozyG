@@ -146,6 +146,10 @@ msgid "Ajustes"
 msgstr "Settings"
 
 #: scenes/ajustes.tscn
+msgid "Ayuda para daltonismo (marcas en los terrenos)"
+msgstr "Colorblind aid (terrain symbols)"
+
+#: scenes/ajustes.tscn
 msgid "Efectos de sonido"
 msgstr "Sound effects"
 
@@ -160,6 +164,10 @@ msgstr "Show the tutorial in new games"
 #: scenes/ajustes.tscn
 msgid "Música y ambiente"
 msgstr "Music and ambience"
+
+#: scenes/ajustes.tscn
+msgid "Tamaño del texto"
+msgstr "Text size"
 
 #: scenes/ajustes.tscn
 msgid "Volver"
@@ -224,6 +232,18 @@ msgstr "A terrarium that grows with you"
 #: scripts/ajustes_panel.gd
 msgid "Automático"
 msgstr "Automatic"
+
+#: scripts/ajustes_panel.gd
+msgid "Grande"
+msgstr "Large"
+
+#: scripts/ajustes_panel.gd
+msgid "Muy grande"
+msgstr "Extra large"
+
+#: scripts/ajustes_panel.gd
+msgid "Normal"
+msgstr "Normal"
 
 #: scripts/juego.gd
 msgid " y "

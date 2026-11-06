@@ -20,7 +20,10 @@ const DURACION_ONDA: float = 0.6
 ## Contorno del fantasma cuando todos los bordes vecinos coinciden.
 @export var color_encaje: Color = Color(0.55, 0.85, 0.45, 1)
 ## Contorno del fantasma cuando algún borde no coincide (se puede colocar igual).
+## Además del color, este contorno es discontinuo: se distingue sin ver colores.
 @export var color_desajuste: Color = Color(0.95, 0.7, 0.35, 1)
+## Largo de cada trazo del contorno discontinuo.
+@export var trazo_desajuste: float = 14.0
 
 var tablero: Tablero
 ## Vector2i -> ConstruccionDatos (lo que hay construido sobre cada pieza).
@@ -150,7 +153,7 @@ func dibujar_dinamico(lienzo: CanvasItem) -> void:
 		return
 	var pulso: float = 0.55 + 0.45 * sin(_reloj * 4.0)
 	if _guia == Guia.HUECOS:
-		var llamada: Color = color_encaje
+		var llamada: Color = _color_encaje()
 		llamada.a = pulso
 		for coord in tablero.frontera():
 			lienzo.draw_polyline(_contorno(coord, 0.94), llamada, 3.0 + 3.0 * pulso, true)
@@ -163,7 +166,7 @@ func dibujar_dinamico(lienzo: CanvasItem) -> void:
 		if construcciones.has(coord):
 			_dibujar_construccion(lienzo, coord, construcciones[coord])
 	if _guia == Guia.PIEZA:
-		var llamada: Color = color_encaje
+		var llamada: Color = _color_encaje()
 		llamada.a = pulso
 		lienzo.draw_polyline(_contorno(_guia_coord, 0.99), llamada, 4.0 + 4.0 * pulso, true)
 	if _hay_seleccion:
@@ -176,8 +179,21 @@ func dibujar_dinamico(lienzo: CanvasItem) -> void:
 			lienzo, Hex.axial_a_pixel(_pendiente_coord, tamano_hex), tamano_hex,
 			_pendiente_pieza, _pendiente_giro, terrenos, 0.75
 		)
-		var color: Color = color_encaje if _pendiente_encaja else color_desajuste
-		lienzo.draw_polyline(_contorno(_pendiente_coord, 0.97), color, 5.0, true)
+		var contorno: PackedVector2Array = _contorno(_pendiente_coord, 0.97)
+		if _pendiente_encaja:
+			lienzo.draw_polyline(contorno, _color_encaje(), 5.0, true)
+		else:
+			for i in contorno.size() - 1:
+				lienzo.draw_dashed_line(contorno[i], contorno[i + 1], _color_desajuste(), 5.0, trazo_desajuste, true, true)
+
+
+## Con la ayuda para daltonismo se cambia el verde y naranja por azul y naranja.
+func _color_encaje() -> Color:
+	return Accesibilidad.COLOR_ENCAJE_DALTONISMO if Preferencias.ayuda_color else color_encaje
+
+
+func _color_desajuste() -> Color:
+	return Accesibilidad.COLOR_DESAJUSTE_DALTONISMO if Preferencias.ayuda_color else color_desajuste
 
 
 ## Casita provisional del color de la construcción; con `arte` se dibuja la textura.
@@ -210,7 +226,7 @@ func _escala_asentar(tiempo: float) -> float:
 
 func _dibujar_onda(lienzo: CanvasItem, coord: Vector2i, tiempo: float) -> void:
 	var t: float = clampf(tiempo / DURACION_ONDA, 0.0, 1.0)
-	var color: Color = color_encaje
+	var color: Color = _color_encaje()
 	color.a = (1.0 - t) * 0.9
 	var centro: Vector2 = Hex.axial_a_pixel(coord, tamano_hex)
 	lienzo.draw_arc(centro, tamano_hex * (0.9 + 0.8 * t), 0.0, TAU, 48, color, 4.0, true)

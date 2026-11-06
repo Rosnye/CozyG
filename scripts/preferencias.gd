@@ -1,6 +1,6 @@
 class_name Preferencias
 extends RefCounted
-## Preferencias del jugador (por ahora, volúmenes) y los buses de audio que las aplican.
+## Preferencias del jugador (volúmenes, idioma, accesibilidad) y los buses de audio que las aplican.
 ## `iniciar()` es seguro llamarlo varias veces desde cualquier escena.
 
 const RUTA: String = "user://ajustes.cfg"
@@ -13,6 +13,10 @@ static var volumen_efectos: float = 0.8
 static var mostrar_tutorial: bool = true
 ## "auto" (sigue al sistema), "es" o "en".
 static var idioma: String = Idioma.AUTOMATICO
+## Multiplica los tamaños de letra del tema (uno de `Accesibilidad.ESCALAS_TEXTO`).
+static var escala_texto: float = 1.0
+## Ayuda para daltonismo: marcas en cada terreno y colores azul/naranja en el fantasma.
+static var ayuda_color: bool = false
 
 static var _iniciado: bool = false
 
@@ -26,6 +30,7 @@ static func iniciar() -> void:
 	cargar()
 	aplicar()
 	Idioma.aplicar(idioma)
+	Accesibilidad.escalar_tema(ThemeDB.get_project_theme(), escala_texto)
 
 
 static func fijar_musica(valor: float) -> void:
@@ -42,6 +47,12 @@ static func fijar_efectos(valor: float) -> void:
 static func fijar_idioma(preferencia: String) -> void:
 	idioma = preferencia
 	Idioma.aplicar(idioma)
+
+
+## Cambia el tamaño del texto de toda la interfaz al instante.
+static func fijar_escala_texto(valor: float) -> void:
+	escala_texto = Accesibilidad.escala_valida(valor)
+	Accesibilidad.escalar_tema(ThemeDB.get_project_theme(), escala_texto)
 
 
 ## Volumen lineal 0..1 a decibelios (0 es silencio total).
@@ -62,6 +73,8 @@ static func guardar() -> void:
 	archivo.set_value("audio", "efectos", volumen_efectos)
 	archivo.set_value("juego", "mostrar_tutorial", mostrar_tutorial)
 	archivo.set_value("juego", "idioma", idioma)
+	archivo.set_value("accesibilidad", "escala_texto", escala_texto)
+	archivo.set_value("accesibilidad", "ayuda_color", ayuda_color)
 	archivo.save(RUTA)
 
 
@@ -73,6 +86,8 @@ static func cargar() -> void:
 	volumen_efectos = clampf(float(archivo.get_value("audio", "efectos", volumen_efectos)), 0.0, 1.0)
 	mostrar_tutorial = bool(archivo.get_value("juego", "mostrar_tutorial", mostrar_tutorial))
 	idioma = str(archivo.get_value("juego", "idioma", idioma))
+	escala_texto = Accesibilidad.escala_valida(float(archivo.get_value("accesibilidad", "escala_texto", escala_texto)))
+	ayuda_color = bool(archivo.get_value("accesibilidad", "ayuda_color", ayuda_color))
 
 
 static func _asegurar_bus(nombre: StringName) -> void:

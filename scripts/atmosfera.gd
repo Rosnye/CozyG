@@ -11,6 +11,9 @@ const GANANCIA_DB: Dictionary = {
 const SILENCIO_DB: float = -80.0
 ## Rapidez con que las capas suben y bajan de volumen.
 const SUAVIZADO: float = 1.2
+## Cambios de volumen menores que esto (dB) no se aplican: en la web, cada cambio es una
+## llamada al audio del navegador, y por debajo de este valor no se oye la diferencia.
+const CAMBIO_MINIMO_DB: float = 0.05
 ## Cada cuántos segundos se recalculan la luz y los niveles de audio.
 const PERIODO_CALCULO: float = 0.1
 
@@ -24,6 +27,8 @@ const PERIODO_CALCULO: float = 0.1
 
 var _capas: Dictionary = {}
 var _niveles: Dictionary = {}
+## Volumen suavizado (dB) de cada capa; al reproductor solo se le pasa si cambia lo bastante.
+var _volumenes: Dictionary = {}
 var _acumulado: float = 1.0  # fuerza el primer cálculo
 
 
@@ -37,6 +42,7 @@ func _ready() -> void:
 			# La música sigue sonando con el juego en pausa.
 			reproductor.process_mode = Node.PROCESS_MODE_ALWAYS
 			_capas[capa] = reproductor
+			_volumenes[capa] = SILENCIO_DB
 
 
 func actualizar(delta: float, ciclo: Ciclo, clima: Clima, conteo: Dictionary, piezas: int) -> void:
@@ -73,5 +79,13 @@ func _suavizar_audio(delta: float) -> void:
 		var objetivo: float = SILENCIO_DB
 		if nivel > 0.001:
 			objetivo = maxf(GANANCIA_DB[capa] + linear_to_db(nivel), SILENCIO_DB)
-		reproductor.volume_db = lerpf(reproductor.volume_db, objetivo, paso)
-		reproductor.stream_paused = objetivo <= SILENCIO_DB and reproductor.volume_db <= SILENCIO_DB + 2.0
+		var volumen: float = lerpf(_volumenes[capa], objetivo, paso)
+		_volumenes[capa] = volumen
+		if absf(volumen - reproductor.volume_db) >= CAMBIO_MINIMO_DB:
+			reproductor.volume_db = volumen
+		var pausar: bool = objetivo <= SILENCIO_DB and volumen <= SILENCIO_DB + 2.0
+		# Solo si cambia: en la web, cada `stream_paused = false` reinicia el sonido y copia
+		# todo su búfer. Hacerlo en cada fotograma generaba cientos de MB de basura por segundo
+		# (tirones y, al rato, el navegador cerraba la pestaña por falta de memoria).
+		if reproductor.stream_paused != pausar:
+			reproductor.stream_paused = pausar
