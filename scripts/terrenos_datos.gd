@@ -5,7 +5,14 @@ extends Resource
 
 ## StringName (id del terreno) -> Color
 @export var colores: Dictionary = {}
+## StringName (id del terreno) -> Texture2D. Forma que identifica el terreno sin depender
+## del color (ayuda para daltonismo). Las genera `herramientas/generar_arte_lowpoly.py`.
+@export var marcas: Dictionary = {}
 
 
 func color_de(id: StringName, por_defecto: Color = Color.MAGENTA) -> Color:
 	return colores.get(id, por_defecto)
+
+
+func marca_de(id: StringName) -> Texture2D:
+	return marcas.get(id, null)

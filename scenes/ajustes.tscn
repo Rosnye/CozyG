@@ -15,12 +15,24 @@ layout_mode = 2
 text = "Ajustes"
 horizontal_alignment = 1
 
-[node name="EtiquetaMusica" type="Label" parent="Caja"]
+[node name="Desplazable" type="ScrollContainer" parent="Caja"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+horizontal_scroll_mode = 0
+
+[node name="Opciones" type="VBoxContainer" parent="Caja/Desplazable"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_constants/separation = 16
+
+[node name="EtiquetaMusica" type="Label" parent="Caja/Desplazable/Opciones"]
 layout_mode = 2
 theme_type_variation = &"EtiquetaPequena"
 text = "Música y ambiente"
 
-[node name="Musica" type="HSlider" parent="Caja"]
+[node name="Musica" type="HSlider" parent="Caja/Desplazable/Opciones"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 56)
 layout_mode = 2
@@ -28,12 +40,12 @@ max_value = 1.0
 step = 0.05
 value = 0.8
 
-[node name="EtiquetaEfectos" type="Label" parent="Caja"]
+[node name="EtiquetaEfectos" type="Label" parent="Caja/Desplazable/Opciones"]
 layout_mode = 2
 theme_type_variation = &"EtiquetaPequena"
 text = "Efectos de sonido"
 
-[node name="Efectos" type="HSlider" parent="Caja"]
+[node name="Efectos" type="HSlider" parent="Caja/Desplazable/Opciones"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 56)
 layout_mode = 2
@@ -41,21 +53,40 @@ max_value = 1.0
 step = 0.05
 value = 0.8
 
-[node name="EtiquetaIdioma" type="Label" parent="Caja"]
+[node name="EtiquetaIdioma" type="Label" parent="Caja/Desplazable/Opciones"]
 layout_mode = 2
 theme_type_variation = &"EtiquetaPequena"
 text = "Idioma"
 
-[node name="Idioma" type="OptionButton" parent="Caja"]
+[node name="Idioma" type="OptionButton" parent="Caja/Desplazable/Opciones"]
 unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 72)
 layout_mode = 2
 theme_type_variation = &"BotonPequeno"
 
-[node name="Tutorial" type="CheckButton" parent="Caja"]
-unique_name_in_owner = true
+[node name="EtiquetaTexto" type="Label" parent="Caja/Desplazable/Opciones"]
 layout_mode = 2
+theme_type_variation = &"EtiquetaPequena"
+text = "Tamaño del texto"
+
+[node name="Texto" type="OptionButton" parent="Caja/Desplazable/Opciones"]
+unique_name_in_owner = true
 custom_minimum_size = Vector2(360, 72)
+layout_mode = 2
+theme_type_variation = &"BotonPequeno"
+
+[node name="AyudaColor" type="CheckButton" parent="Caja/Desplazable/Opciones"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 72)
+layout_mode = 2
+theme_type_variation = &"BotonPequeno"
+text = "Ayuda para daltonismo (marcas en los terrenos)"
+autowrap_mode = 3
+
+[node name="Tutorial" type="CheckButton" parent="Caja/Desplazable/Opciones"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(360, 72)
+layout_mode = 2
 theme_type_variation = &"BotonPequeno"
 text = "Mostrar el tutorial en partidas nuevas"
 autowrap_mode = 3

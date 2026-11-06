@@ -17,3 +17,10 @@ func prueba_los_volumenes_se_limitan_a_0_1() -> void:
 	afirmar_igual(Preferencias.volumen_efectos, 0.0, "mínimo 0")
 	Preferencias.fijar_musica(musica)
 	Preferencias.fijar_efectos(efectos)
+
+
+func prueba_fijar_escala_texto_usa_una_escala_de_la_lista() -> void:
+	var antes: float = Preferencias.escala_texto
+	Preferencias.fijar_escala_texto(1.19)
+	afirmar_igual(Preferencias.escala_texto, 1.2, "se ajusta a Grande")
+	Preferencias.fijar_escala_texto(antes)
