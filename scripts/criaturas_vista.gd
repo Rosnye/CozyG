@@ -16,7 +16,7 @@ var _reloj: float = 0.0
 
 
 func _process(delta: float) -> void:
-	if ecosistema == null:
+	if ecosistema == null or ecosistema.individuos.is_empty():
 		return
 	_reloj += delta
 	var presentes: Dictionary = {}

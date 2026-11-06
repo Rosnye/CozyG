@@ -22,6 +22,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ajustes.tscn" id="20"]
 [ext_resource type="Script" path="res://scripts/panel_tutorial.gd" id="21"]
 [ext_resource type="Script" path="res://scripts/barra_inferior.gd" id="22"]
+[ext_resource type="Script" path="res://scripts/capa_dinamica.gd" id="23"]
 
 [sub_resource type="Gradient" id="gradiente_punto"]
 colors = PackedColorArray(1, 1, 1, 1, 1, 1, 1, 0)
@@ -59,6 +60,9 @@ mouse_filter = 2
 texture_filter = 4
 script = ExtResource("2")
 terrenos = ExtResource("5")
+
+[node name="Dinamica" type="Node2D" parent="Tablero"]
+script = ExtResource("23")
 
 [node name="Particulas" type="CPUParticles2D" parent="Tablero"]
 z_index = 10

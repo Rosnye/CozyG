@@ -9,7 +9,10 @@ const GOTAS: int = 140
 ## 0 sin lluvia, 1 lluvia completa.
 var intensidad: float = 0.0:
 	set(valor):
-		intensidad = clampf(valor, 0.0, 1.0)
+		var nueva: float = clampf(valor, 0.0, 1.0)
+		if is_equal_approx(nueva, intensidad):
+			return
+		intensidad = nueva
 		set_process(intensidad > 0.01)
 		queue_redraw()
 

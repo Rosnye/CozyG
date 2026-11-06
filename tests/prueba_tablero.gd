@@ -53,3 +53,27 @@ func prueba_frontera() -> void:
 	afirmar_igual(t.frontera().size(), 8, "dos vecinas -> 8 huecos sin repetir")
 	for coord in t.frontera():
 		afirmar(t.puede_colocar(coord), "cada hueco de la frontera es válido")
+
+
+func prueba_la_version_sube_al_cambiar_el_tablero() -> void:
+	var t := Tablero.new()
+	var v0: int = t.version
+	t.colocar(Vector2i.ZERO, _pieza(&"a"))
+	afirmar(t.version > v0, "colocar sube la versión")
+	var v1: int = t.version
+	t.colocar(Vector2i(9, 9), _pieza(&"b"))  # rechazada: no toca a nadie
+	afirmar_igual(t.version, v1, "una colocación rechazada no cambia la versión")
+	t.restaurar(Vector2i(1, 0), _pieza(&"c"), 0)
+	afirmar(t.version > v1, "restaurar también sube la versión")
+
+
+func prueba_la_frontera_en_cache_se_actualiza_al_cambiar() -> void:
+	var t := Tablero.new()
+	t.colocar(Vector2i.ZERO, _pieza(&"a"))
+	var primera: Array[Vector2i] = t.frontera()
+	afirmar_igual(primera.size(), 6, "una pieza: 6 huecos")
+	afirmar_igual(t.frontera().size(), 6, "pedirla otra vez da lo mismo")
+	t.colocar(Vector2i(1, 0), _pieza(&"b"))
+	afirmar_igual(t.frontera().size(), 8, "tras colocar otra, la caché se renueva")
+	for coord in t.frontera():
+		afirmar(not t.esta_ocupado(coord), "ningún hueco está ocupado")

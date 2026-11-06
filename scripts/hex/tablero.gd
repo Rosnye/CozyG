@@ -6,6 +6,12 @@ extends RefCounted
 ## Vector2i -> { "pieza": PiezaDatos, "giro": int }
 var _celdas: Dictionary = {}
 
+## Sube cada vez que cambia el contenido del tablero; sirve para invalidar cachés.
+var version: int = 0
+
+var _frontera_cache: Array[Vector2i] = []
+var _frontera_version: int = -1
+
 
 func cantidad() -> int:
 	return _celdas.size()
@@ -54,6 +60,7 @@ func colocar(coord: Vector2i, pieza: PiezaDatos, giro: int = 0) -> bool:
 	if pieza == null or not puede_colocar(coord):
 		return false
 	_celdas[coord] = {"pieza": pieza, "giro": posmod(giro, 6)}
+	version += 1
 	return true
 
 
@@ -93,6 +100,7 @@ func encaja_perfecto(coord: Vector2i, pieza: PiezaDatos, giro: int) -> bool:
 ## Coloca sin comprobar reglas (para cargar una partida guardada).
 func restaurar(coord: Vector2i, pieza: PiezaDatos, giro: int) -> void:
 	_celdas[coord] = {"pieza": pieza, "giro": posmod(giro, 6)}
+	version += 1
 
 
 ## Cuántos bordes de un terreno necesita una pieza para ser hábitat de ese terreno.
@@ -129,8 +137,10 @@ func celdas_habitat(terreno: StringName) -> Array[Vector2i]:
 	return resultado
 
 
-## Huecos libres donde se puede colocar (sin repetidos).
+## Huecos libres donde se puede colocar (sin repetidos). Se guarda en caché hasta que cambie el tablero.
 func frontera() -> Array[Vector2i]:
+	if _frontera_version == version:
+		return _frontera_cache
 	var vistos: Dictionary = {}
 	var resultado: Array[Vector2i] = []
 	for coord: Vector2i in _celdas:
@@ -138,4 +148,6 @@ func frontera() -> Array[Vector2i]:
 			if not _celdas.has(vecino) and not vistos.has(vecino):
 				vistos[vecino] = true
 				resultado.append(vecino)
+	_frontera_cache = resultado
+	_frontera_version = version
 	return resultado

@@ -17,6 +17,8 @@ const FASE_INICIAL: float = 0.1
 const PASEO: Vector2 = Vector2(2.5, 6.0)
 ## Cada cuántos segundos se actualizan los botones del panel de construcción.
 const REFRESCO_PANEL: float = 0.4
+## Cada cuántos segundos se actualiza el indicador de recursos.
+const REFRESCO_HUD: float = 0.25
 
 ## Dónde se guarda la partida (se cambia antes de añadir la escena en pruebas, para no pisar la real).
 var ruta_guardado: String = "user://guardado.json"
@@ -39,6 +41,7 @@ var _clima := Clima.new()
 var _conteo: Dictionary = {}
 var _espera_paseo: float = 4.0
 var _espera_panel: float = 0.0
+var _espera_hud: float = 0.0
 var _tutorial := Tutorial.new()
 var _ultima_colocada: Vector2i = Vector2i.ZERO
 var _hay_ultima: bool = false
@@ -120,7 +123,10 @@ func _process(delta: float) -> void:
 	_ciclo.avanzar(delta)
 	_clima.avanzar(delta)
 	_economia.avanzar(delta, _tablero)
-	_hud_recursos.actualizar(_economia)
+	_espera_hud -= delta
+	if _espera_hud <= 0.0:
+		_espera_hud = REFRESCO_HUD
+		_hud_recursos.actualizar(_economia)
 	_criaturas_vista.luz = _ciclo.luz()
 	_atmosfera.actualizar(delta, _ciclo, _clima, _conteo, _tablero.cantidad())
 	_espera_paseo -= delta
@@ -282,7 +288,7 @@ func _al_pedir_construir(construccion: ConstruccionDatos) -> void:
 	_guardar()
 	_hud_recursos.actualizar(_economia)
 	_mostrar_panel()
-	_vista.queue_redraw()
+	_vista.refrescar()
 
 
 func _al_pedir_quitar() -> void:
@@ -292,7 +298,7 @@ func _al_pedir_quitar() -> void:
 	_guardar()
 	_hud_recursos.actualizar(_economia)
 	_mostrar_panel()
-	_vista.queue_redraw()
+	_vista.refrescar()
 
 
 func _al_girar() -> void:
@@ -375,7 +381,6 @@ func _actualizar_interfaz() -> void:
 	else:
 		_encaje.text = ""
 		_vista.ocultar_pendiente()
-	_vista.queue_redraw()
 
 
 # --- Tutorial -------------------------------------------------------------

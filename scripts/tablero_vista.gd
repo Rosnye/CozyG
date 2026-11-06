@@ -1,6 +1,12 @@
 class_name TableroVista
 extends Node2D
 ## Dibuja el tablero y sus animaciones. Solo lee datos: no decide reglas.
+##
+## Dos capas, para no redibujar cientos de piezas en cada fotograma:
+## - Esta (fija): huecos, piezas y construcciones. Se redibuja solo cuando cambia el mundo
+##   (`refrescar`, o al empezar y terminar una animación).
+## - `CapaDinamica` (hija): fantasma, selección, guías y animaciones. Cambia todo el rato
+##   y dibuja poca cosa.
 
 enum Guia { NINGUNA, HUECOS, PIEZA }
 
@@ -35,10 +41,17 @@ var _pendiente_encaja: bool = false
 var _animaciones: Dictionary = {}
 
 @onready var _particulas: CPUParticles2D = $Particulas
+@onready var _dinamica: CapaDinamica = $Dinamica
 
 
 func _ready() -> void:
+	_dinamica.vista = self
 	set_process(false)
+
+
+## Redibuja las piezas y construcciones fijas. Llamar cuando cambie el mundo.
+func refrescar() -> void:
+	queue_redraw()
 
 
 func mostrar_pendiente(coord: Vector2i, pieza: PiezaDatos, giro: int, encaja: bool) -> void:
@@ -47,12 +60,12 @@ func mostrar_pendiente(coord: Vector2i, pieza: PiezaDatos, giro: int, encaja: bo
 	_pendiente_pieza = pieza
 	_pendiente_giro = giro
 	_pendiente_encaja = encaja
-	queue_redraw()
+	_dinamica.queue_redraw()
 
 
 func ocultar_pendiente() -> void:
 	_hay_pendiente = false
-	queue_redraw()
+	_dinamica.queue_redraw()
 
 
 ## Guía del tutorial: hace pulsar los huecos libres donde se puede colocar.
@@ -70,100 +83,120 @@ func guiar_pieza(coord: Vector2i) -> void:
 
 func quitar_guia() -> void:
 	_guia = Guia.NINGUNA
-	queue_redraw()
+	_dinamica.queue_redraw()
 
 
 ## Resalta la pieza elegida para construir.
 func seleccionar(coord: Vector2i) -> void:
 	_hay_seleccion = true
 	_seleccion = coord
-	queue_redraw()
+	_dinamica.queue_redraw()
 
 
 func deseleccionar() -> void:
 	_hay_seleccion = false
-	queue_redraw()
+	_dinamica.queue_redraw()
 
 
 ## Anima la pieza recién colocada; si encaja perfecto, añade una onda y partículas.
+## Mientras dura, la capa fija se salta esa pieza y la dibuja la dinámica.
 func animar_colocacion(coord: Vector2i, perfecta: bool) -> void:
 	_animaciones[coord] = {"tiempo": 0.0, "perfecta": perfecta}
 	if perfecta:
 		_particulas.position = Hex.axial_a_pixel(coord, tamano_hex)
 		_particulas.restart()
+	queue_redraw()
 	set_process(true)
 
 
 func _process(delta: float) -> void:
 	_reloj += delta
+	var termino_alguna: bool = false
 	for coord: Vector2i in _animaciones.keys():
 		var animacion: Dictionary = _animaciones[coord]
 		animacion["tiempo"] += delta
 		var duracion: float = DURACION_ONDA if animacion["perfecta"] else DURACION_ASENTAR
 		if animacion["tiempo"] >= duracion:
 			_animaciones.erase(coord)
-	queue_redraw()
+			termino_alguna = true
+	if termino_alguna:
+		queue_redraw()  # la pieza vuelve a la capa fija
+	_dinamica.queue_redraw()
 	if _animaciones.is_empty() and _guia == Guia.NINGUNA:
 		set_process(false)
 
 
+## Capa fija: huecos libres, piezas y construcciones.
 func _draw() -> void:
 	if tablero == null:
 		return
-	var pulso: float = 0.55 + 0.45 * sin(_reloj * 4.0)
 	for coord in tablero.frontera():
-		var contorno := _contorno(coord, 0.94)
-		if _guia == Guia.HUECOS:
-			var llamada: Color = color_encaje
-			llamada.a = pulso
-			draw_polyline(contorno, llamada, 3.0 + 3.0 * pulso, true)
-		else:
-			draw_polyline(contorno, color_hueco, 2.0, true)
+		draw_polyline(_contorno(coord, 0.94), color_hueco, 2.0, true)
 	for coord in tablero.coordenadas():
-		var escala: float = 1.0
 		if _animaciones.has(coord):
-			escala = _escala_asentar(_animaciones[coord]["tiempo"])
+			continue
 		DibujoPieza.dibujar(
 			self, Hex.axial_a_pixel(coord, tamano_hex), tamano_hex,
-			tablero.pieza_en(coord), tablero.giro_en(coord), terrenos, 1.0, escala
+			tablero.pieza_en(coord), tablero.giro_en(coord), terrenos
 		)
 	for coord: Vector2i in construcciones:
-		_dibujar_construccion(coord, construcciones[coord])
+		if not _animaciones.has(coord):
+			_dibujar_construccion(self, coord, construcciones[coord])
+
+
+## Capa dinámica: lo que cambia a menudo. La llama `CapaDinamica`.
+func dibujar_dinamico(lienzo: CanvasItem) -> void:
+	if tablero == null:
+		return
+	var pulso: float = 0.55 + 0.45 * sin(_reloj * 4.0)
+	if _guia == Guia.HUECOS:
+		var llamada: Color = color_encaje
+		llamada.a = pulso
+		for coord in tablero.frontera():
+			lienzo.draw_polyline(_contorno(coord, 0.94), llamada, 3.0 + 3.0 * pulso, true)
+	for coord: Vector2i in _animaciones:
+		DibujoPieza.dibujar(
+			lienzo, Hex.axial_a_pixel(coord, tamano_hex), tamano_hex,
+			tablero.pieza_en(coord), tablero.giro_en(coord), terrenos, 1.0,
+			_escala_asentar(_animaciones[coord]["tiempo"])
+		)
+		if construcciones.has(coord):
+			_dibujar_construccion(lienzo, coord, construcciones[coord])
 	if _guia == Guia.PIEZA:
 		var llamada: Color = color_encaje
 		llamada.a = pulso
-		draw_polyline(_contorno(_guia_coord, 0.99), llamada, 4.0 + 4.0 * pulso, true)
+		lienzo.draw_polyline(_contorno(_guia_coord, 0.99), llamada, 4.0 + 4.0 * pulso, true)
 	if _hay_seleccion:
-		draw_polyline(_contorno(_seleccion, 0.97), color_seleccion, 4.0, true)
+		lienzo.draw_polyline(_contorno(_seleccion, 0.97), color_seleccion, 4.0, true)
 	for coord: Vector2i in _animaciones:
 		if _animaciones[coord]["perfecta"]:
-			_dibujar_onda(coord, _animaciones[coord]["tiempo"])
+			_dibujar_onda(lienzo, coord, _animaciones[coord]["tiempo"])
 	if _hay_pendiente and _pendiente_pieza != null:
 		DibujoPieza.dibujar(
-			self, Hex.axial_a_pixel(_pendiente_coord, tamano_hex), tamano_hex,
+			lienzo, Hex.axial_a_pixel(_pendiente_coord, tamano_hex), tamano_hex,
 			_pendiente_pieza, _pendiente_giro, terrenos, 0.75
 		)
 		var color: Color = color_encaje if _pendiente_encaja else color_desajuste
-		draw_polyline(_contorno(_pendiente_coord, 0.97), color, 5.0, true)
+		lienzo.draw_polyline(_contorno(_pendiente_coord, 0.97), color, 5.0, true)
 
 
 ## Casita provisional del color de la construcción; con `arte` se dibuja la textura.
-func _dibujar_construccion(coord: Vector2i, construccion: ConstruccionDatos) -> void:
+func _dibujar_construccion(lienzo: CanvasItem, coord: Vector2i, construccion: ConstruccionDatos) -> void:
 	var centro: Vector2 = Hex.axial_a_pixel(coord, tamano_hex)
 	var s: float = tamano_hex * 0.36
 	if construccion.arte != null:
-		draw_texture_rect(construccion.arte, Rect2(centro - Vector2(s * 1.5, s * 1.9), Vector2(s, s) * 3.0), false)
+		lienzo.draw_texture_rect(construccion.arte, Rect2(centro - Vector2(s * 1.5, s * 1.9), Vector2(s, s) * 3.0), false)
 		return
 	var paredes := Rect2(centro + Vector2(-s, -s * 0.2), Vector2(2.0 * s, 1.2 * s))
 	var techo := PackedVector2Array([
 		centro + Vector2(-s * 1.25, -s * 0.2), centro + Vector2(0, -s * 1.25), centro + Vector2(s * 1.25, -s * 0.2)
 	])
 	var linea: Color = Color(0.2, 0.17, 0.14, 0.7)
-	draw_circle(centro + Vector2(0, s), s * 1.1, Color(0, 0, 0, 0.18))
-	draw_rect(paredes, construccion.color)
-	draw_rect(paredes, linea, false, 2.0)
-	draw_colored_polygon(techo, construccion.color.darkened(0.3))
-	draw_polyline(PackedVector2Array([techo[0], techo[1], techo[2], techo[0]]), linea, 2.0, true)
+	lienzo.draw_circle(centro + Vector2(0, s), s * 1.1, Color(0, 0, 0, 0.18))
+	lienzo.draw_rect(paredes, construccion.color)
+	lienzo.draw_rect(paredes, linea, false, 2.0)
+	lienzo.draw_colored_polygon(techo, construccion.color.darkened(0.3))
+	lienzo.draw_polyline(PackedVector2Array([techo[0], techo[1], techo[2], techo[0]]), linea, 2.0, true)
 
 
 ## Rebote suave: arranca pequeña, se pasa un poco y se asienta.
@@ -175,12 +208,12 @@ func _escala_asentar(tiempo: float) -> float:
 	return 0.55 + 0.45 * curva
 
 
-func _dibujar_onda(coord: Vector2i, tiempo: float) -> void:
+func _dibujar_onda(lienzo: CanvasItem, coord: Vector2i, tiempo: float) -> void:
 	var t: float = clampf(tiempo / DURACION_ONDA, 0.0, 1.0)
 	var color: Color = color_encaje
 	color.a = (1.0 - t) * 0.9
 	var centro: Vector2 = Hex.axial_a_pixel(coord, tamano_hex)
-	draw_arc(centro, tamano_hex * (0.9 + 0.8 * t), 0.0, TAU, 48, color, 4.0, true)
+	lienzo.draw_arc(centro, tamano_hex * (0.9 + 0.8 * t), 0.0, TAU, 48, color, 4.0, true)
 
 
 func _contorno(coord: Vector2i, escala: float) -> PackedVector2Array:
