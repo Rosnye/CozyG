@@ -1,0 +1,322 @@
+# Traducciones de Brote. Se mantiene con `python herramientas/textos.py`.
+# El español es el idioma de origen: cada msgid es el texto original.
+msgid ""
+msgstr ""
+"Content-Type: text/plain; charset=UTF-8\n"
+"Language: en\n"
+
+#: data/construcciones/aserradero.tres
+msgid "Aserradero"
+msgstr "Sawmill"
+
+#: data/construcciones/cantera.tres, data/piezas/cantera.tres
+msgid "Cantera"
+msgstr "Quarry"
+
+#: data/construcciones/corral.tres
+msgid "Corral"
+msgstr "Pen"
+
+#: data/construcciones/granja_trigo.tres
+msgid "Granja de trigo"
+msgstr "Wheat farm"
+
+#: data/construcciones/mina_plata.tres
+msgid "Mina de plata"
+msgstr "Silver mine"
+
+#: data/construcciones/pesqueria.tres
+msgid "Pesquería"
+msgstr "Fishery"
+
+#: data/criaturas/ciervo.tres
+msgid "Ciervo"
+msgstr "Deer"
+
+#: data/criaturas/conejo.tres
+msgid "Conejo"
+msgstr "Rabbit"
+
+#: data/criaturas/garza.tres
+msgid "Garza"
+msgstr "Heron"
+
+#: data/criaturas/luciernaga.tres
+msgid "Luciérnaga"
+msgstr "Firefly"
+
+#: data/criaturas/rana.tres
+msgid "Rana"
+msgstr "Frog"
+
+#: data/piezas/agua.tres
+msgid "Lago"
+msgstr "Lake"
+
+#: data/piezas/bosque.tres
+msgid "Bosque"
+msgstr "Forest"
+
+#: data/piezas/campo.tres
+msgid "Campo"
+msgstr "Field"
+
+#: data/piezas/claro.tres
+msgid "Claro del bosque"
+msgstr "Forest clearing"
+
+#: data/piezas/curva_rio.tres
+msgid "Curva de río"
+msgstr "River bend"
+
+#: data/piezas/mineral.tres
+msgid "Veta de plata"
+msgstr "Silver vein"
+
+#: data/piezas/piedra.tres
+msgid "Mina"
+msgstr "Mine"
+
+#: data/piezas/prado.tres
+msgid "Prado"
+msgstr "Meadow"
+
+#: data/piezas/rio.tres
+msgid "Río"
+msgstr "River"
+
+#: data/piezas/tierra.tres
+msgid "Tierra de cultivo"
+msgstr "Farmland"
+
+#: data/piezas/veta.tres
+msgid "Filón"
+msgstr "Lode"
+
+#: data/recursos/carne.tres
+msgid "Carne"
+msgstr "Meat"
+
+#: data/recursos/madera.tres
+msgid "Madera"
+msgstr "Wood"
+
+#: data/recursos/mineral.tres
+msgid "Mineral"
+msgstr "Ore"
+
+#: data/recursos/pescado.tres
+msgid "Pescado"
+msgstr "Fish"
+
+#: data/recursos/piedra.tres
+msgid "Piedra"
+msgstr "Stone"
+
+#: data/recursos/trigo.tres
+msgid "Trigo"
+msgstr "Wheat"
+
+#: data/terrenos.tres
+msgid "agua"
+msgstr "water"
+
+#: data/terrenos.tres
+msgid "bosque"
+msgstr "forest"
+
+#: data/terrenos.tres
+msgid "mineral"
+msgstr "ore"
+
+#: data/terrenos.tres
+msgid "piedra"
+msgstr "stone"
+
+#: data/terrenos.tres
+msgid "prado"
+msgstr "meadow"
+
+#: data/terrenos.tres
+msgid "tierra"
+msgstr "soil"
+
+#: scenes/ajustes.tscn, scenes/juego.tscn, scenes/menu.tscn
+msgid "Ajustes"
+msgstr "Settings"
+
+#: scenes/ajustes.tscn
+msgid "Efectos de sonido"
+msgstr "Sound effects"
+
+#: scenes/ajustes.tscn
+msgid "Idioma"
+msgstr "Language"
+
+#: scenes/ajustes.tscn
+msgid "Mostrar el tutorial en partidas nuevas"
+msgstr "Show the tutorial in new games"
+
+#: scenes/ajustes.tscn
+msgid "Música y ambiente"
+msgstr "Music and ambience"
+
+#: scenes/ajustes.tscn
+msgid "Volver"
+msgstr "Back"
+
+#: scenes/juego.tscn
+msgid "Confirmar"
+msgstr "Confirm"
+
+#: scenes/juego.tscn, scenes/menu.tscn
+msgid "Continuar"
+msgstr "Continue"
+
+#: scenes/juego.tscn
+msgid "Girar"
+msgstr "Rotate"
+
+#: scenes/juego.tscn
+msgid "Pausa"
+msgstr "Paused"
+
+#: scenes/juego.tscn
+msgid "Pieza"
+msgstr "Piece"
+
+#: scenes/juego.tscn
+msgid "Piezas: 0"
+msgstr "Pieces: 0"
+
+#: scenes/juego.tscn
+msgid "Volver al menú"
+msgstr "Back to menu"
+
+#: scenes/menu.tscn
+msgid "Brote"
+msgstr "Brote"
+
+#: scenes/menu.tscn
+msgid "Cancelar"
+msgstr "Cancel"
+
+#: scenes/menu.tscn
+msgid "Empezar de cero"
+msgstr "Start over"
+
+#: scenes/menu.tscn
+msgid "Nueva partida"
+msgstr "New game"
+
+#: scenes/menu.tscn
+msgid "Salir"
+msgstr "Quit"
+
+#: scenes/menu.tscn
+msgid "Se borrará la partida actual. ¿Empezar de cero?"
+msgstr "The current game will be erased. Start over?"
+
+#: scenes/menu.tscn
+msgid "Un terrario que crece contigo"
+msgstr "A terrarium that grows with you"
+
+#: scripts/ajustes_panel.gd
+msgid "Automático"
+msgstr "Automatic"
+
+#: scripts/juego.gd
+msgid " y "
+msgstr " and "
+
+#: scripts/juego.gd
+msgid "+%d%% producción"
+msgstr "+%d%% production"
+
+#: scripts/juego.gd
+msgid "Construcción quitada"
+msgstr "Building removed"
+
+#: scripts/juego.gd
+msgid "Construido: %s"
+msgstr "Built: %s"
+
+#: scripts/juego.gd
+msgid "Encaja %d de %d"
+msgstr "Fits %d of %d"
+
+#: scripts/juego.gd
+msgid "Ha llegado: %s"
+msgstr "Arrived: %s"
+
+#: scripts/juego.gd
+msgid "Piezas: %d  ·  Criaturas: %d"
+msgstr "Pieces: %d  ·  Creatures: %d"
+
+#: scripts/juego.gd
+msgid "Tutorial omitido. Puedes volver a activarlo en Ajustes."
+msgstr "Tutorial skipped. You can turn it back on in Settings."
+
+#: scripts/panel_construccion.gd
+msgid "%d vecinas iguales"
+msgstr "%d matching neighbors"
+
+#: scripts/panel_construccion.gd
+msgid "1 vecina igual"
+msgstr "1 matching neighbor"
+
+#: scripts/panel_construccion.gd
+msgid "Cerrar"
+msgstr "Close"
+
+#: scripts/panel_construccion.gd
+msgid "gratis"
+msgstr "free"
+
+#: scripts/panel_construccion.gd
+msgid "no rinde aquí"
+msgstr "doesn't work here"
+
+#: scripts/panel_construccion.gd
+msgid "Quitar (devuelve la mitad)"
+msgstr "Remove (refunds half)"
+
+#: scripts/panel_tutorial.gd
+msgid "Saltar tutorial"
+msgstr "Skip tutorial"
+
+#: scripts/tutorial.gd
+msgid "Elige el Aserradero: rinde al 100% sobre bosque. Ya tienes madera para pagarlo."
+msgstr "Choose the Sawmill: it works at 100% on forest. You already have the wood to pay for it."
+
+#: scripts/tutorial.gd
+msgid "Empezar"
+msgstr "Start"
+
+#: scripts/tutorial.gd
+msgid "Para empezar, toca uno de los huecos libres junto a tu primera pieza. Ahí irá la pieza de bosque."
+msgstr "To begin, tap one of the free spots next to your first piece. The forest piece will go there."
+
+#: scripts/tutorial.gd
+msgid "Pulsa Confirmar (o Enter) para colocarla. Encajar bien suena y brilla."
+msgstr "Press Confirm (or Enter) to place it. A good fit chimes and sparkles."
+
+#: scripts/tutorial.gd
+msgid "Pulsa Girar (o la tecla R) para rotar la pieza. Cuando el contorno es verde, sus bordes encajan con los vecinos."
+msgstr "Press Rotate (or the R key) to turn the piece. When the outline is green, its edges match the neighbors."
+
+#: scripts/tutorial.gd
+msgid "¡Bienvenido a Brote! Tu mundo crece pieza a pieza. Te sugiero empezar con un aserradero: produce madera, que necesitas para construir todo lo demás."
+msgstr "Welcome to Brote! Your world grows piece by piece. I suggest starting with a sawmill: it produces wood, which you need to build everything else."
+
+#: scripts/tutorial.gd
+msgid "¡Entendido!"
+msgstr "Got it!"
+
+#: scripts/tutorial.gd
+msgid "¡Listo! Arriba a la derecha verás subir la madera. Junta piezas del mismo tipo para producir +5% por cada vecina. Lo demás, descúbrelo a tu ritmo."
+msgstr "All set! At the top right you'll see the wood go up. Place matching pieces together to produce +5% per neighbor. The rest, discover at your own pace."
+
+#: scripts/tutorial.gd
+msgid "¡Muy bien! Ahora toca la pieza de bosque que acabas de colocar para abrir el panel de construcción."
+msgstr "Well done! Now tap the forest piece you just placed to open the building panel."

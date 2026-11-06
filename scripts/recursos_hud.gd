@@ -4,9 +4,12 @@ extends PanelContainer
 
 var _etiquetas: Dictionary = {}  # id -> Label
 var _anteriores: Dictionary = {}  # id -> int
+var _filas: Dictionary = {}  # id -> HBoxContainer
+var _datos: Array[RecursoDatos] = []
 
 
 func configurar(datos: Array[RecursoDatos]) -> void:
+	_datos = datos
 	var rejilla := GridContainer.new()
 	rejilla.columns = 2
 	rejilla.add_theme_constant_override("h_separation", 18)
@@ -15,7 +18,8 @@ func configurar(datos: Array[RecursoDatos]) -> void:
 	for recurso in datos:
 		var fila := HBoxContainer.new()
 		fila.add_theme_constant_override("separation", 8)
-		fila.tooltip_text = recurso.nombre
+		fila.tooltip_text = recurso.nombre_visible()
+		_filas[recurso.id] = fila
 		if recurso.icono != null:
 			var icono := TextureRect.new()
 			icono.texture = recurso.icono
@@ -38,6 +42,13 @@ func configurar(datos: Array[RecursoDatos]) -> void:
 		rejilla.add_child(fila)
 		_etiquetas[recurso.id] = etiqueta
 		_anteriores[recurso.id] = 0
+
+
+func _notification(motivo: int) -> void:
+	if motivo == NOTIFICATION_TRANSLATION_CHANGED:
+		for recurso in _datos:
+			if _filas.has(recurso.id):
+				(_filas[recurso.id] as Control).tooltip_text = recurso.nombre_visible()
 
 
 func actualizar(economia: Economia) -> void:

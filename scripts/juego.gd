@@ -145,6 +145,12 @@ func _notification(motivo: int) -> void:
 	if motivo == NOTIFICATION_WM_CLOSE_REQUEST or motivo == NOTIFICATION_APPLICATION_PAUSED \
 			or motivo == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		_guardar()
+	# Al cambiar el idioma se vuelven a escribir los textos que pone el código.
+	if motivo == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready() and _pieza_actual != null:
+		_actualizar_interfaz()
+		_actualizar_tutorial()
+		if _hay_seleccion:
+			_mostrar_panel()
 
 
 func _unhandled_key_input(evento: InputEvent) -> void:
@@ -283,7 +289,7 @@ func _al_pedir_construir(construccion: ConstruccionDatos) -> void:
 		return
 	_sonido_colocar.play()
 	_vista.animar_colocacion(_seleccion, true)
-	_avisar("Construido: " + construccion.nombre)
+	_avisar(tr("Construido: %s") % construccion.nombre_visible())
 	_evento_tutorial(&"construido")
 	_guardar()
 	_hud_recursos.actualizar(_economia)
@@ -294,7 +300,7 @@ func _al_pedir_construir(construccion: ConstruccionDatos) -> void:
 func _al_pedir_quitar() -> void:
 	if not _hay_seleccion or not _economia.quitar(_seleccion):
 		return
-	_avisar("Construcción quitada")
+	_avisar(tr("Construcción quitada"))
 	_guardar()
 	_hud_recursos.actualizar(_economia)
 	_mostrar_panel()
@@ -327,9 +333,10 @@ func _al_confirmar() -> void:
 	if not llegadas.is_empty():
 		var nombres: PackedStringArray = []
 		for llegada in llegadas:
-			if not nombres.has(llegada["criatura"].nombre):
-				nombres.append(llegada["criatura"].nombre)
-		_avisar("Ha llegado: " + " y ".join(nombres))
+			var nombre_criatura: String = llegada["criatura"].nombre_visible()
+			if not nombres.has(nombre_criatura):
+				nombres.append(nombre_criatura)
+		_avisar(tr("Ha llegado: %s") % tr(" y ").join(nombres))
 	_guardar()
 	_actualizar_interfaz()
 	_evento_tutorial(&"pieza_colocada")
@@ -366,17 +373,17 @@ func _volver_al_menu() -> void:
 
 
 func _actualizar_interfaz() -> void:
-	_nombre.text = _pieza_actual.nombre
-	_contador.text = "Piezas: %d  ·  Criaturas: %d" % [_tablero.cantidad(), _ecosistema.cantidad()]
+	_nombre.text = _pieza_actual.nombre_visible()
+	_contador.text = tr("Piezas: %d  ·  Criaturas: %d") % [_tablero.cantidad(), _ecosistema.cantidad()]
 	_muestra.mostrar(_pieza_actual, _giro)
 	_confirmar.disabled = not _hay_pendiente
 	if _hay_pendiente:
 		var resultado := _tablero.evaluar(_pendiente, _pieza_actual, _giro)
 		var perfecto: bool = _tablero.encaja_perfecto(_pendiente, _pieza_actual, _giro)
-		_encaje.text = "Encaja %d de %d" % [resultado["coinciden"], resultado["vecinos"]]
+		_encaje.text = tr("Encaja %d de %d") % [resultado["coinciden"], resultado["vecinos"]]
 		var iguales: int = _tablero.vecinas_iguales(_pendiente, _pieza_actual)
 		if iguales > 0:
-			_encaje.text += " · +%d%% producción" % roundi(iguales * Economia.BONO_VECINA * 100.0)
+			_encaje.text += " · " + tr("+%d%% producción") % roundi(iguales * Economia.BONO_VECINA * 100.0)
 		_vista.mostrar_pendiente(_pendiente, _pieza_actual, _giro, perfecto)
 	else:
 		_encaje.text = ""
@@ -400,7 +407,7 @@ func _al_siguiente_tutorial() -> void:
 func _al_saltar_tutorial() -> void:
 	_tutorial.saltar()
 	_guardar()
-	_avisar("Tutorial omitido. Puedes volver a activarlo en Ajustes.")
+	_avisar(tr("Tutorial omitido. Puedes volver a activarlo en Ajustes."))
 	_actualizar_tutorial()
 
 

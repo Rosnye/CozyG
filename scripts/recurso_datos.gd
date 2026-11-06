@@ -8,3 +8,8 @@ extends Resource
 ## Cantidad con la que empieza una partida nueva.
 @export var inicial: int = 0
 @export var icono: Texture2D
+
+
+## Nombre en el idioma actual. El campo `nombre` está en español y es la clave de traducción.
+func nombre_visible() -> String:
+	return tr(nombre)

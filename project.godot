@@ -34,6 +34,11 @@ theme/custom="res://data/tema_brote.tres"
 
 pointing/emulate_touch_from_mouse=true
 
+[internationalization]
+
+locale/fallback="es"
+locale/translations=PackedStringArray("res://data/idiomas/en.po")
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

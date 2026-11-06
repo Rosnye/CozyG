@@ -21,3 +21,8 @@ func borde(direccion: int, giro: int = 0) -> StringName:
 	if bordes.size() != 6:
 		return id
 	return bordes[posmod(direccion - giro, 6)]
+
+
+## Nombre en el idioma actual. El campo `nombre` está en español y es la clave de traducción.
+func nombre_visible() -> String:
+	return tr(nombre)
