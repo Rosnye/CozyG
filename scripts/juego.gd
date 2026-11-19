@@ -146,6 +146,8 @@ func _notification(motivo: int) -> void:
 	if motivo == NOTIFICATION_WM_CLOSE_REQUEST or motivo == NOTIFICATION_APPLICATION_PAUSED \
 			or motivo == NOTIFICATION_APPLICATION_FOCUS_OUT:
 		_guardar()
+	if motivo == NOTIFICATION_WM_GO_BACK_REQUEST:
+		_al_pulsar_atras()
 	# Al cambiar el idioma se vuelven a escribir los textos que pone el código.
 	if motivo == NOTIFICATION_TRANSLATION_CHANGED and is_node_ready() and _pieza_actual != null:
 		_actualizar_interfaz()
@@ -341,6 +343,19 @@ func _al_confirmar() -> void:
 	_guardar()
 	_actualizar_interfaz()
 	_evento_tutorial(&"pieza_colocada")
+
+
+## Botón Atrás de Android: deshace un paso (ajustes, pausa, selección) o abre la pausa.
+func _al_pulsar_atras() -> void:
+	if _pausa.visible:
+		if _ajustes.visible:
+			_cerrar_ajustes_pausa()
+		else:
+			_reanudar()
+	elif _hay_seleccion:
+		_deseleccionar()
+	else:
+		_pausar()
 
 
 func _pausar() -> void:

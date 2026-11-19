@@ -34,10 +34,19 @@ static func factor_para(tamano_ventana: Vector2, escala_pantalla: float, es_tact
 	return clampf(deseada / escala_base, 1.0, FACTOR_MAXIMO)
 
 
+## Píxeles físicos por píxel CSS (o por "dp" en Android). Si el sistema no da una escala
+## útil en Android (1 o menos), se deduce de los puntos por pulgada: 160 ppp = escala 1.
+static func escala_de_pantalla(escala_sistema: float, ppp: int, es_android: bool) -> float:
+	if es_android and escala_sistema <= 1.0 and ppp > 0:
+		return maxf(float(ppp) / 160.0, 1.0)
+	return escala_sistema
+
+
 static func aplicar(ventana: Window) -> void:
-	var factor: float = factor_para(
-		Vector2(ventana.size), DisplayServer.screen_get_scale(), DisplayServer.is_touchscreen_available()
+	var escala: float = escala_de_pantalla(
+		DisplayServer.screen_get_scale(), DisplayServer.screen_get_dpi(), OS.has_feature("android")
 	)
+	var factor: float = factor_para(Vector2(ventana.size), escala, DisplayServer.is_touchscreen_available())
 	if not is_equal_approx(ventana.content_scale_factor, factor):
 		ventana.content_scale_factor = factor
 
