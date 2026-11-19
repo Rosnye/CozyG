@@ -10,6 +10,10 @@ Cómo generar un APK de prueba e instalarlo en un móvil Android, sin pasar por 
 | **Android SDK**: `platform-tools`, `build-tools` y una plataforma (`platforms;android-35`) | `adb` y `apksigner` | `android_sdk_path` (por defecto `%LOCALAPPDATA%\Android\Sdk`) |
 | **Plantillas de exportación de Godot 4.7.2** | La base del APK (`android_debug.apk`, `android_release.apk`) | Godot, Editor > Administrar plantillas de exportación |
 
+**En el PC de desarrollo ya está instalado en `D:\Herramientas`:** `jdk-17`, `android-sdk` (platform-tools, build-tools 35.0.1, android-35), la clave de depuración en `claves\debug.keystore` y las plantillas en `godot-plantillas.7.2.stable`, enlazadas (unión de directorios) desde `%APPDATA%\Godot\export_templates.7.2.stable`. `instalar_sdk.bat` vuelve a instalar los paquetes del SDK. Las rutas están en la configuración del editor de Godot (`editor_settings-4.7.tres`; hay una copia de antes en `D:\Herramientas`).
+
+Android exige además la compresión de texturas ETC2/ASTC: está activada en `project.godot` (`rendering/textures/vram_compression/import_etc2_astc`).
+
 El SDK se puede instalar con Android Studio o solo con las *command-line tools*. Con estas últimas:
 
 ```
@@ -17,7 +21,7 @@ sdkmanager --sdk_root=%LOCALAPPDATA%\Android\Sdk "platform-tools" "build-tools;3
 sdkmanager --sdk_root=%LOCALAPPDATA%\Android\Sdk --licenses
 ```
 
-Las licencias del SDK las tiene que aceptar la persona que lo instala.
+Las licencias del SDK las tiene que aceptar la persona que lo instala. Las herramientas nuevas de Google (`android sdk`, que sustituye a `sdkmanager`) muestran los términos al instalar y envían estadísticas de uso salvo que se use `--no-metrics`.
 
 No hace falta Gradle: el preset usa las plantillas ya compiladas (`gradle_build/use_gradle_build=false`).
 
