@@ -26,6 +26,17 @@ func _ready() -> void:
 	_confirmacion.confirmed.connect(_empezar_de_cero)
 
 
+func _notification(motivo: int) -> void:
+	# Botón Atrás de Android: cierra los ajustes o, desde el menú, sale del juego.
+	if motivo == NOTIFICATION_WM_GO_BACK_REQUEST and is_node_ready():
+		if _ajustes.visible:
+			_cerrar_ajustes()
+		elif _confirmacion.visible:
+			_confirmacion.hide()
+		else:
+			get_tree().quit()
+
+
 func _al_continuar() -> void:
 	get_tree().change_scene_to_file(ESCENA_JUEGO)
 

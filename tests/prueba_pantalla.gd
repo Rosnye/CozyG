@@ -56,3 +56,11 @@ func prueba_entradas_raras() -> void:
 	afirmar_igual(Pantalla.factor_para(Vector2(0, 0), 2.0, true), 1.0, "ventana vacía no rompe")
 	var enorme: float = Pantalla.factor_para(Vector2(100, 60), 1.0, true)
 	afirmar(enorme <= Pantalla.FACTOR_MAXIMO, "el factor nunca pasa del máximo (%.2f)" % enorme)
+
+
+func prueba_escala_en_android_sale_de_los_ppp_si_el_sistema_no_la_da() -> void:
+	afirmar_igual(Pantalla.escala_de_pantalla(1.0, 480, true), 3.0, "480 ppp = escala 3")
+	afirmar_igual(Pantalla.escala_de_pantalla(2.75, 440, true), 2.75, "si el sistema la da, se usa esa")
+	afirmar_igual(Pantalla.escala_de_pantalla(1.0, 96, true), 1.0, "nunca menos de 1")
+	afirmar_igual(Pantalla.escala_de_pantalla(1.0, 480, false), 1.0, "fuera de Android no se toca")
+	afirmar_igual(Pantalla.escala_de_pantalla(1.0, 0, true), 1.0, "sin ppp se queda igual")
